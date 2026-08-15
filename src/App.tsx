@@ -34,8 +34,14 @@ function shuffle<T>(arr: T[]): T[] {
 
 // ─── All gallery images ──────────────────────────────────────────────────────
 
-const localImages = import.meta.glob('./photography/**/*.{jpg,JPG,jpeg,JPEG,png,PNG,webp,WEBP}', { eager: true, import: 'default' }) as Record<string, string>;
-const localImagePaths = Object.values(localImages);
+const localImagesGlob = import.meta.glob('./photography/**/*.{jpg,JPG,jpeg,JPEG,png,PNG,webp,WEBP}', { eager: true });
+const localImages: Record<string, string> = Object.fromEntries(
+  Object.entries(localImagesGlob).map(([k, v]) => {
+    const url = typeof v === 'string' ? v : (v as { default: string }).default
+    return [k, url]
+  })
+);
+const localImagePaths = Object.values(localImages).filter(Boolean);
 
 const VALID_COLLECTIONS: Collection[] = ['Portrait', 'Landscape', 'Culture', 'Street', 'Wedding', 'Concerts', 'AI'];
 
@@ -383,7 +389,7 @@ function Photography({ onOpen, tab, setTab }: { onOpen: (i: GalleryItem) => void
   )
 
   return (
-    <section id="photography" style={{ padding: 'clamp(56px,7vw,110px) clamp(18px,4vw,64px)' }}>
+    <section id="photography" style={{ padding: 'clamp(56px,7vw,110px) clamp(18px,4vw,64px)', borderTop: '1px solid rgba(0,0,0,.09)' }}>
       <p style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.66rem', letterSpacing: '.52em', textTransform: 'uppercase', marginBottom: 10 }}>03 — Through the Lens</p>
       <h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#111111', fontSize: 'clamp(2rem,5vw,4rem)', lineHeight: .95, marginBottom: 14 }}>Photography</h2>
       <p style={{ fontFamily: "'DM Sans'", color: '#6b6b6b', fontSize: '.9rem', lineHeight: 1.75, maxWidth: 480, marginBottom: 32 }}>
@@ -818,8 +824,8 @@ function Contact() {
             <div key={f.id}>
               <label style={lbl}>{f.lbl}</label>
               <input type={f.type} placeholder={f.ph} value={f.val} onChange={(e) => f.fn(e.target.value)} style={inp}
-                onFocus={(e) => (e.target.style.borderColor = 'rgba(201,169,110,.5)')}
-                onBlur={(e) => (e.target.style.borderColor = 'rgba(0,0,0,.1)')}
+                onFocus={(e) => (e.target.style.borderColor = 'rgba(201,169,110,.6)')}
+                onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,.1)')}
                 required
               />
             </div>
@@ -827,13 +833,13 @@ function Contact() {
           <div>
             <label style={lbl}>Message</label>
             <textarea rows={5} placeholder="Write something..." value={form.msg} onChange={(e) => setForm(p => ({ ...p, msg: e.target.value }))} style={{ ...inp, resize: 'none' }}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(201,169,110,.5)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(0,0,0,.1)')}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(201,169,110,.6)')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,.1)')}
               required
             />
           </div>
-          <button type="submit" style={{ fontFamily: "'DM Sans'", fontSize: '.66rem', letterSpacing: '.4em', textTransform: 'uppercase', padding: '15px 30px', background: '#c9a96e', color: '#f4f1ec', border: 'none', cursor: 'none', alignSelf: 'flex-start', transition: 'background .35s' }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = '#111111')}
+          <button type="submit" style={{ fontFamily: "'DM Sans'", fontSize: '.66rem', letterSpacing: '.4em', textTransform: 'uppercase', padding: '15px 30px', background: '#c9a96e', color: '#080808', border: 'none', cursor: 'none', alignSelf: 'flex-start', transition: 'background .35s' }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = '#f0ece4')}
             onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = '#c9a96e')}
           >Send via WhatsApp</button>
         </form>

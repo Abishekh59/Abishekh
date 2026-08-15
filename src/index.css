@@ -30,6 +30,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+::selection {
+  background: rgba(201,169,110,.25);
+  color: #111111;
+}
+
 /* Work section — two-column project layout */
 @media (min-width: 768px) {
   .work-project { grid-template-columns: 1fr 1fr; }
