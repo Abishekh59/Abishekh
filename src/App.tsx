@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import abishekharImg from './imports/Abiskark_Joshi.png'
 import damakImg from './imports/Damak_Music_Circle_.png'
+import heroImg from './photography/Landscape/1786773923331.jpg'
+import aboutImg from './AbishekforAbout.png'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Collection = 'Portrait' | 'Landscape' | 'Culture' | 'Street'
+type Collection = 'Portrait' | 'Landscape' | 'Culture' | 'Street' | 'Wedding' | 'Concerts' | 'AI'
 
 interface GalleryItem {
   id: string
@@ -32,29 +34,37 @@ function shuffle<T>(arr: T[]): T[] {
 
 // ─── All gallery images ──────────────────────────────────────────────────────
 
-const localImages = import.meta.glob('./photography/*.{jpg,JPG,jpeg,png}', { eager: true, import: 'default' }) as Record<string, string>;
+const localImages = import.meta.glob('./photography/**/*.{jpg,JPG,jpeg,JPEG,png,PNG,webp,WEBP}', { eager: true, import: 'default' }) as Record<string, string>;
 const localImagePaths = Object.values(localImages);
 
-const ALL_IMAGES: GalleryItem[] = localImagePaths.map((url, i) => ({
-  id: `img-${i}`,
-  url: url,
-  thumb: url, // Could use a smaller version if generated, but reusing for now
-  alt: `Photography image ${i + 1}`,
-  title: `Capture ${String(i + 1).padStart(2, '0')}`,
-  subtitle: 'Photography',
-  year: '2026',
-  location: 'Nepal',
-  aspect: i % 3 === 0 ? '2/3' : '3/2',
-  collection: (['Portrait', 'Landscape', 'Culture', 'Street'] as Collection[])[i % 4],
-}));
+const VALID_COLLECTIONS: Collection[] = ['Portrait', 'Landscape', 'Culture', 'Street', 'Wedding', 'Concerts', 'AI'];
+
+const ALL_IMAGES: GalleryItem[] = Object.entries(localImages).map(([path, url], i) => {
+  const parts = path.split('/');
+  const folderName = parts[2] || '';
+  const category = VALID_COLLECTIONS.find(
+    (c) => c.toLowerCase() === folderName.toLowerCase()
+  ) || 'Portrait';
+
+  return {
+    id: `img-${i}`,
+    url: url,
+    thumb: url,
+    alt: `${category} photography image ${i + 1}`,
+    title: `Capture ${String(i + 1).padStart(2, '0')}`,
+    subtitle: `${category} Photography`,
+    year: '2026',
+    location: 'Nepal',
+    aspect: i % 3 === 0 ? '2/3' : '3/2',
+    collection: category,
+  };
+});
 
 const HERO_SLIDES = localImagePaths.length > 0 
   ? localImagePaths.slice(0, Math.min(6, localImagePaths.length)).map(url => ({ url, alt: 'Hero image' }))
   : [{ url: '', alt: 'Placeholder' }];
 
-const MARQUEE_SET = localImagePaths.length > 0
-  ? localImagePaths.slice(0, Math.min(10, localImagePaths.length))
-  : [];
+const MARQUEE_SET = ALL_IMAGES.filter(item => item.collection !== 'AI');
 
 // ─── Cursor ───────────────────────────────────────────────────────────────────
 
@@ -162,6 +172,8 @@ function Nav({ onNav }: { onNav: (href: string) => void }) {
     e.preventDefault(); setOpen(false); onNav(href)
   }
 
+  const textColor = solid ? '#111111' : '#ffffff'
+
   return (
     <>
       <nav
@@ -169,13 +181,13 @@ function Nav({ onNav }: { onNav: (href: string) => void }) {
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '18px 40px',
-          background: solid ? 'rgba(244,241,236,0.92)' : 'transparent',
+          background: solid ? 'rgba(255,255,255,0.95)' : 'transparent',
           backdropFilter: solid ? 'blur(16px)' : 'none',
           borderBottom: solid ? '1px solid rgba(0,0,0,.07)' : 'none',
           transition: 'background .5s, backdrop-filter .5s',
         }}
       >
-        <a href="#top" onClick={(e) => go(e, '#top')} style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#111111', fontSize: 'clamp(.78rem,1.2vw,.9rem)', letterSpacing: '.28em', textTransform: 'uppercase', textDecoration: 'none' }}>
+        <a href="#top" onClick={(e) => go(e, '#top')} style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: textColor, fontSize: 'clamp(.78rem,1.2vw,.9rem)', letterSpacing: '.28em', textTransform: 'uppercase', textDecoration: 'none', transition: 'color .5s' }}>
           Abishekh Joshi
         </a>
         <ul style={{ display: 'flex', gap: 32, listStyle: 'none', margin: 0, padding: 0 }} className="hidden md:flex">
@@ -184,14 +196,14 @@ function Nav({ onNav }: { onNav: (href: string) => void }) {
               <a
                 href={l.href}
                 onClick={(e) => go(e, l.href)}
-                style={{ fontFamily: "'DM Sans',system-ui,sans-serif", color: '#111111', fontSize: '.68rem', letterSpacing: '.38em', textTransform: 'uppercase', textDecoration: 'none', opacity: .5, transition: 'opacity .35s' }}
+                style={{ fontFamily: "'DM Sans',system-ui,sans-serif", color: textColor, fontSize: '.68rem', letterSpacing: '.38em', textTransform: 'uppercase', textDecoration: 'none', opacity: solid ? 0.5 : 0.75, transition: 'opacity .35s, color .5s' }}
                 onMouseEnter={(e) => ((e.target as HTMLElement).style.opacity = '1')}
-                onMouseLeave={(e) => ((e.target as HTMLElement).style.opacity = '.5')}
+                onMouseLeave={(e) => ((e.target as HTMLElement).style.opacity = solid ? '.5' : '.75')}
               >{l.label}</a>
             </li>
           ))}
         </ul>
-        <button className="md:hidden" onClick={() => setOpen(v => !v)} style={{ background: 'none', border: 'none', color: '#111111', fontSize: 22 }}>≡</button>
+        <button className="md:hidden" onClick={() => setOpen(v => !v)} style={{ background: 'none', border: 'none', color: textColor, fontSize: 22, transition: 'color .5s' }}>≡</button>
       </nav>
 
       {open && (
@@ -212,7 +224,7 @@ function Hero() {
   return (
     <section id="top" style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden', background: '#f4f1ec' }}>
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-        <img src={HERO_SLIDES[1].url} alt={HERO_SLIDES[1].alt} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', backgroundColor: '#dedad4' }} />
+        <img src={heroImg} alt="Hero image" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', backgroundColor: '#dedad4' }} />
       </div>
 
       {/* Gradient */}
@@ -223,18 +235,18 @@ function Hero() {
         <p style={{ fontFamily: "'DM Sans',system-ui,sans-serif", color: '#c9a96e', fontSize: '.66rem', letterSpacing: '.55em', textTransform: 'uppercase', marginBottom: 16 }}>
           Photography · Films · Design
         </p>
-        <h1 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#111111', fontSize: 'clamp(2.6rem,7vw,5.8rem)', lineHeight: .92, textTransform: 'uppercase', letterSpacing: '-.01em', marginBottom: 20 }}>
+        <h1 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#ffffff', fontSize: 'clamp(2.6rem,7vw,5.8rem)', lineHeight: .92, textTransform: 'uppercase', letterSpacing: '-.01em', marginBottom: 20 }}>
           Light finds<br />its subject.
         </h1>
-        <p style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#111111', fontSize: 'clamp(.85rem,1.4vw,1.05rem)', fontStyle: 'italic', opacity: .6 }}>
+        <p style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#ffffff', fontSize: 'clamp(.85rem,1.4vw,1.05rem)', fontStyle: 'italic', opacity: .8 }}>
           Visual Storyteller &nbsp;·&nbsp; Kathmandu, Nepal
         </p>
       </div>
 
       {/* Scroll cue */}
       <div style={{ position: 'absolute', bottom: 22, left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontFamily: "'DM Sans'", color: '#111111', fontSize: '.6rem', letterSpacing: '.45em', textTransform: 'uppercase', opacity: .3 }}>Scroll</span>
-        <div style={{ width: 1, height: 42, background: 'rgba(0,0,0,.14)', overflow: 'hidden' }}>
+        <span style={{ fontFamily: "'DM Sans'", color: '#ffffff', fontSize: '.6rem', letterSpacing: '.45em', textTransform: 'uppercase', opacity: .5 }}>Scroll</span>
+        <div style={{ width: 1, height: 42, background: 'rgba(255,255,255,.2)', overflow: 'hidden' }}>
           <div className="scroll-cue-line" style={{ width: '100%', height: '100%', background: '#c9a96e' }} />
         </div>
       </div>
@@ -244,15 +256,15 @@ function Hero() {
 
 // ─── Marquee ──────────────────────────────────────────────────────────────────
 
-function Marquee() {
+function Marquee({ onImageClick }: { onImageClick: (item: GalleryItem) => void }) {
   const imgs = [...MARQUEE_SET, ...MARQUEE_SET]
   return (
     <div style={{ borderTop: '1px solid rgba(0,0,0,.09)', borderBottom: '1px solid rgba(0,0,0,.09)', overflow: 'hidden', padding: '10px 0' }}>
       <div className="marquee-wrap" style={{ overflow: 'hidden' }}>
         <div className="marquee-track" style={{ display: 'flex', gap: 8, width: 'max-content' }}>
-          {imgs.map((url, i) => (
-            <div key={i} data-hover style={{ flexShrink: 0, width: i % 3 === 0 ? 220 : 310, height: 150, overflow: 'hidden', background: '#dedad4', position: 'relative' }}>
-              <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'grayscale(1)', transition: 'filter .65s ease,transform .65s ease', transform: 'scale(1)' }}
+          {imgs.map((item, i) => (
+            <div key={i} data-hover onClick={() => onImageClick(item)} style={{ flexShrink: 0, width: i % 3 === 0 ? 220 : 310, height: 150, overflow: 'hidden', background: '#dedad4', position: 'relative', cursor: 'none' }}>
+              <img src={item.url} alt={item.alt} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'grayscale(1)', transition: 'filter .65s ease,transform .65s ease', transform: 'scale(1)' }}
                 onMouseEnter={(e) => { const img = e.currentTarget; img.style.filter = 'grayscale(0)'; img.style.transform = 'scale(1.05)' }}
                 onMouseLeave={(e) => { const img = e.currentTarget; img.style.filter = 'grayscale(1)'; img.style.transform = 'scale(1)' }}
               />
@@ -270,6 +282,7 @@ function GCard({ item, onOpen }: { item: GalleryItem; onOpen: (i: GalleryItem) =
   const [h, setH] = useState(false)
   return (
     <div
+      id={item.id}
       data-hover
       onClick={() => onOpen(item)}
       onMouseEnter={() => setH(true)}
@@ -358,10 +371,9 @@ function GCard({ item, onOpen }: { item: GalleryItem; onOpen: (i: GalleryItem) =
 
 // ─── Photography section ──────────────────────────────────────────────────────
 
-const TABS = ['All', 'Portrait', 'Landscape', 'Culture', 'Street'] as const
+const TABS = ['All', 'Portrait', 'Landscape', 'Culture', 'Street', 'Wedding', 'Concerts', 'AI'] as const
 
-function Photography({ onOpen }: { onOpen: (i: GalleryItem) => void }) {
-  const [tab, setTab] = useState<typeof TABS[number]>('All')
+function Photography({ onOpen, tab, setTab }: { onOpen: (i: GalleryItem) => void; tab: typeof TABS[number]; setTab: (t: typeof TABS[number]) => void }) {
 
   // Shuffle once on mount, re-shuffle when tab changes
   const shuffled = useMemo(
@@ -621,8 +633,9 @@ function About() {
         borderTop: '1px solid rgba(0,0,0,.09)',
         minHeight: '100vh',
         display: 'grid',
-        gridTemplateColumns: '1fr',
+        gridTemplateColumns: '1fr 1fr',
         position: 'relative',
+        overflow: 'hidden',
       }}
     >
       {/* ── LEFT: text ── */}
@@ -685,7 +698,7 @@ function About() {
         </div>
 
         {/* Bottom: social links — underlined like the reference */}
-        <div style={{ display: 'flex', gap: 32, marginTop: 'clamp(40px,6vw,72px)', paddingTop: 28, borderTop: '1px solid rgba(0,0,0,.08)' }}>
+        <div style={{ display: 'flex', gap: 32, marginTop: 'clamp(40px,6vw,72px)', paddingTop: 28, borderTop: '1px solid rgba(0,0,0,.08)', flexWrap: 'wrap' }}>
           {[
             { label: 'Instagram', href: 'https://www.instagram.com/abishek_joshi_/' },
             { label: 'LinkedIn', href: 'https://www.linkedin.com/in/abishekh-joshi-41135a2a0/' },
@@ -725,6 +738,51 @@ function About() {
         </div>
       </div>
 
+      {/* ── RIGHT: portrait image ── */}
+      <div
+        style={{
+          position: 'relative',
+          overflow: 'hidden',
+          minHeight: '100vh',
+        }}
+      >
+        <img
+          src={aboutImg}
+          alt="Abishekh Joshi portrait"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center top',
+            filter: 'grayscale(12%)',
+            transition: 'transform .8s cubic-bezier(.25,.46,.45,.94)',
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLImageElement).style.transform = 'scale(1.04)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLImageElement).style.transform = 'scale(1)' }}
+        />
+        {/* Subtle left-side gradient so the image blends into the text column */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to right, rgba(255,255,255,.18) 0%, transparent 25%)',
+            pointerEvents: 'none',
+          }}
+        />
+        {/* Subtle gold accent bar at bottom */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 3,
+            background: 'linear-gradient(to right, transparent, #c9a96e 40%, transparent)',
+          }}
+        />
+      </div>
 
     </section>
   )
@@ -1026,22 +1084,53 @@ function Footer() {
 
 export default function App() {
   const [modal, setModal] = useState<GalleryItem | null>(null)
+  const [photoTab, setPhotoTab] = useState<typeof TABS[number]>('All')
 
   const nav = useCallback((href: string) => {
     if (href === '#top') { window.scrollTo({ top: 0, behavior: 'smooth' }); return }
     setTimeout(() => { const el = document.querySelector(href); if (el) el.scrollIntoView({ behavior: 'smooth' }) }, 40)
   }, [])
 
+  const handleMarqueeImageClick = useCallback((item: GalleryItem) => {
+    setPhotoTab(item.collection)
+    setModal(null)
+    nav('#photography')
+
+    // Wait for the new category tab elements to render, then scroll to the specific image card
+    // and highlight it temporarily with a gold border outline and scale effect.
+    setTimeout(() => {
+      const el = document.getElementById(item.id)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        
+        const originalTransform = el.style.transform
+        const originalZIndex = el.style.zIndex
+
+        el.style.zIndex = '50'
+        el.style.transition = 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)'
+        el.style.outline = '3px solid #c9a96e'
+        el.style.outlineOffset = '6px'
+        el.style.transform = 'scale(1.03)'
+
+        setTimeout(() => {
+          el.style.outline = 'none'
+          el.style.transform = originalTransform
+          el.style.zIndex = originalZIndex
+        }, 2200)
+      }
+    }, 450)
+  }, [nav])
+
   return (
     <div style={{ background: '#f4f1ec', minHeight: '100vh', color: '#111111' }}>
       <Cursor />
       <Nav onNav={nav} />
       <Hero />
-      <Marquee />
+      <Marquee onImageClick={handleMarqueeImageClick} />
       <About />
       <Work />
       <Films />
-      <Photography onOpen={setModal} />
+      <Photography onOpen={setModal} tab={photoTab} setTab={setPhotoTab} />
       <Contact />
       <Footer />
       <Modal item={modal} onClose={() => setModal(null)} />
