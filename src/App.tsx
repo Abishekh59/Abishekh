@@ -929,11 +929,6 @@ const FILMS = [
     year: '2023',
   },
   {
-    id: 'lBzsiQepMRo',
-    title: 'Ridesh Tamang — RECKLESS (Bass Playthrough)',
-    year: '2023',
-  },
-  {
     id: 'fRwodduCtMs',
     title: 'Treble Clef — समीप (Official Video)',
     year: '2023',
