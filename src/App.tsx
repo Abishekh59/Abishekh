@@ -815,8 +815,7 @@ function About() {
 
 function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
-  const inp: React.CSSProperties = { width: '100%', background: 'transparent', border: '1px solid rgba(0,0,0,.1)', color: '#111111', fontFamily: "'DM Sans'", fontSize: '.86rem', padding: '13px 16px', outline: 'none', transition: 'border-color .35s' }
-  const lbl: React.CSSProperties = { fontFamily: "'DM Sans'", color: '#6b6b6b', fontSize: '.6rem', letterSpacing: '.4em', textTransform: 'uppercase', display: 'block', marginBottom: 7 }
+  const [focused, setFocused] = useState<string | null>(null)
 
   const handleWhatsApp = () => {
     if (!form.name || !form.message) {
@@ -826,69 +825,352 @@ function Contact() {
     window.open(`https://wa.me/9779815025634?text=${encodeURIComponent(`Hi Abishekh,\nName: ${form.name}\nEmail: ${form.email}\n\n${form.message}`)}`, '_blank')
   }
 
+  const inputStyle = (field: string): React.CSSProperties => ({
+    width: '100%',
+    background: 'rgba(255,255,255,.04)',
+    border: '1px solid',
+    borderColor: focused === field ? 'rgba(201,169,110,.6)' : 'rgba(255,255,255,.08)',
+    color: '#f0ede8',
+    fontFamily: "'DM Sans'",
+    fontSize: '.88rem',
+    padding: '16px 18px',
+    outline: 'none',
+    transition: 'border-color .4s ease, background .4s ease',
+    borderRadius: 0,
+  })
+
+  const labelStyle: React.CSSProperties = {
+    fontFamily: "'DM Sans'",
+    color: 'rgba(240,237,232,.4)',
+    fontSize: '.58rem',
+    letterSpacing: '.42em',
+    textTransform: 'uppercase',
+    display: 'block',
+    marginBottom: 8,
+  }
+
+  const contactItems = [
+    {
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2" />
+          <path d="M22 4l-10 8L2 4" />
+        </svg>
+      ),
+      label: 'Email',
+      value: 'joshiabishek987@gmail.com',
+      href: 'mailto:joshiabishek987@gmail.com',
+    },
+    {
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+        </svg>
+      ),
+      label: 'Phone',
+      value: '+977 9815025634',
+      href: 'tel:+9779815025634',
+    },
+    {
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+      ),
+      label: 'Based in',
+      value: 'Kathmandu, Nepal',
+    },
+  ]
+
+  const socials = [
+    { label: 'Instagram', href: 'https://www.instagram.com/abishek_joshi_/', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg> },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/abishekh-joshi-41135a2a0/', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg> },
+    { label: 'Facebook', href: 'https://www.facebook.com/abishek.joshi.79', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg> },
+    { label: 'TikTok', href: 'https://www.tiktok.com/@abishekjoshi59', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 104 4V4a5 5 0 005 5" /></svg> },
+  ]
+
   return (
-    <section id="contact" style={{ padding: 'clamp(56px,7vw,110px) clamp(18px,4vw,64px)', borderTop: '1px solid rgba(0,0,0,.09)' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 'clamp(36px,6vw,88px)' }} className="md:grid-cols-2">
-        <div className="md:order-last">
-          <p style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.66rem', letterSpacing: '.52em', textTransform: 'uppercase', marginBottom: 10 }}>Get in touch</p>
-          <h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#111111', fontSize: 'clamp(2rem,5vw,4rem)', lineHeight: .95, marginBottom: 22 }}>Want to<br />collaborate?</h2>
-          <p style={{ fontFamily: "'DM Sans'", color: '#6b6b6b', fontSize: '.88rem', lineHeight: 1.8, marginBottom: 36 }}>Design project, photography commission, or just to talk craft — I'm a message away.</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {[['Email', 'joshiabishek987@gmail.com'], ['Phone', '+977 9815025634'], ['Based in', 'Kathmandu, Nepal'], ['Status', 'Open to opportunities']].map(([l, v]) => (
-              <div key={l} style={{ display: 'flex', gap: 18 }}>
-                <span style={{ fontFamily: "'DM Sans'", color: '#6b6b6b', fontSize: '.6rem', letterSpacing: '.35em', textTransform: 'uppercase', width: 60, flexShrink: 0, paddingTop: 2 }}>{l}</span>
-                <span style={{ fontFamily: "'DM Sans'", color: '#111111', fontSize: '.86rem' }}>{v}</span>
+    <section
+      id="contact"
+      style={{
+        position: 'relative',
+        background: '#0a0a0a',
+        padding: 'clamp(72px,9vw,140px) clamp(18px,4vw,64px)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Decorative watermark number */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '-5%',
+          right: '-3%',
+          fontFamily: "'DM Serif Display',Georgia,serif",
+          fontSize: 'clamp(14rem,28vw,26rem)',
+          fontWeight: 400,
+          color: 'rgba(255,255,255,.018)',
+          lineHeight: 1,
+          pointerEvents: 'none',
+          userSelect: 'none',
+        }}
+      >
+        05
+      </div>
+
+      {/* Subtle top gold line */}
+      <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(to right, transparent, rgba(201,169,110,.25), transparent)' }} />
+
+      {/* Content grid */}
+      <div className="contact-grid" style={{ position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: '1fr', gap: 'clamp(48px,7vw,96px)', maxWidth: 1100, margin: '0 auto' }}>
+
+        {/* ── Left column: heading + info ── */}
+        <div>
+          {/* Eyebrow */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 'clamp(28px,4vw,48px)' }}>
+            <span style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.58rem', letterSpacing: '.52em', textTransform: 'uppercase' }}>
+              05 — Contact
+            </span>
+            <span style={{ flex: 1, height: 1, background: 'rgba(201,169,110,.15)' }} />
+          </div>
+
+          {/* Main heading */}
+          <h2
+            style={{
+              fontFamily: "'DM Serif Display',Georgia,serif",
+              color: '#f0ede8',
+              fontSize: 'clamp(2.4rem,6vw,4.8rem)',
+              lineHeight: .92,
+              marginBottom: 12,
+              fontStyle: 'italic',
+            }}
+          >
+            Let's Create<br />Together
+          </h2>
+
+          <p style={{ fontFamily: "'DM Sans'", color: 'rgba(240,237,232,.35)', fontSize: 'clamp(.84rem,1.1vw,.95rem)', lineHeight: 1.8, maxWidth: 420, marginBottom: 'clamp(36px,5vw,56px)' }}>
+            Design project, photography commission, or just to talk craft — I'm a message away.
+          </p>
+
+          {/* Contact details with icons */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {contactItems.map((item, i) => (
+              <div key={item.label}>
+                {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,.05)', margin: '18px 0' }} />}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+                  <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(201,169,110,.15)', flexShrink: 0 }}>
+                    {item.icon}
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: "'DM Sans'", color: 'rgba(240,237,232,.3)', fontSize: '.55rem', letterSpacing: '.4em', textTransform: 'uppercase', marginBottom: 3 }}>
+                      {item.label}
+                    </p>
+                    {item.href ? (
+                      <a
+                        href={item.href}
+                        target={item.href.startsWith('http') ? '_blank' : undefined}
+                        rel="noopener noreferrer"
+                        data-hover
+                        style={{ fontFamily: "'DM Sans'", color: '#f0ede8', fontSize: '.88rem', textDecoration: 'none', transition: 'color .35s' }}
+                        onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#c9a96e')}
+                        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = '#f0ede8')}
+                      >
+                        {item.value}
+                      </a>
+                    ) : (
+                      <p style={{ fontFamily: "'DM Sans'", color: '#f0ede8', fontSize: '.88rem', margin: 0 }}>{item.value}</p>
+                    )}
+                  </div>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* Social icons row */}
+          <div style={{ display: 'flex', gap: 10, marginTop: 'clamp(32px,4vw,48px)' }}>
+            {socials.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-hover
+                title={s.label}
+                style={{
+                  width: 40,
+                  height: 40,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(255,255,255,.07)',
+                  color: 'rgba(240,237,232,.35)',
+                  transition: 'color .35s, border-color .35s, background .35s',
+                  textDecoration: 'none',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.color = '#c9a96e'
+                  el.style.borderColor = 'rgba(201,169,110,.4)'
+                  el.style.background = 'rgba(201,169,110,.06)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.color = 'rgba(240,237,232,.35)'
+                  el.style.borderColor = 'rgba(255,255,255,.07)'
+                  el.style.background = 'transparent'
+                }}
+              >
+                {s.icon}
+              </a>
             ))}
           </div>
         </div>
 
-        <form className="md:order-first" action="https://formsubmit.co/joshiabishek987@gmail.com" method="POST" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <input type="hidden" name="_subject" value="New message from portfolio!" />
-          <input type="hidden" name="_captcha" value="false" />
-          
-          <div>
-            <label style={lbl}>Your Name</label>
-            <input type="text" name="name" placeholder="Your full name" style={inp}
-              value={form.name} onChange={(e) => setForm({...form, name: e.target.value})}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(201,169,110,.6)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(0,0,0,.1)')}
-              required
-            />
+        {/* ── Right column: form card ── */}
+        <div
+          style={{
+            background: 'rgba(255,255,255,.025)',
+            border: '1px solid rgba(255,255,255,.06)',
+            padding: 'clamp(28px,4vw,48px)',
+            backdropFilter: 'blur(12px)',
+            position: 'relative',
+          }}
+        >
+          {/* Status badge inside card */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
+            <span className="contact-pulse" style={{ width: 6, height: 6, borderRadius: '50%', background: '#c9a96e', display: 'block', flexShrink: 0 }} />
+            <span style={{ fontFamily: "'DM Sans'", color: 'rgba(201,169,110,.7)', fontSize: '.56rem', letterSpacing: '.38em', textTransform: 'uppercase' }}>
+              Open to opportunities · 2026
+            </span>
           </div>
-          <div>
-            <label style={lbl}>Email Address</label>
-            <input type="email" name="email" placeholder="Your email address" style={inp}
-              value={form.email} onChange={(e) => setForm({...form, email: e.target.value})}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(201,169,110,.6)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(0,0,0,.1)')}
-              required
-            />
-          </div>
-          <div>
-            <label style={lbl}>Message</label>
-            <textarea name="message" rows={5} placeholder="Write something..." style={{ ...inp, resize: 'none' }}
-              value={form.message} onChange={(e) => setForm({...form, message: e.target.value})}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(201,169,110,.6)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(0,0,0,.1)')}
-              required
-            />
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 4 }}>
-            <button type="submit" style={{ fontFamily: "'DM Sans'", fontSize: '.66rem', letterSpacing: '.4em', textTransform: 'uppercase', padding: '15px 30px', background: '#c9a96e', color: '#080808', border: 'none', cursor: 'none', transition: 'background .35s' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = '#f0ece4')}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = '#c9a96e')}
-            >Send Email</button>
-            <button type="button" onClick={handleWhatsApp} style={{ fontFamily: "'DM Sans'", fontSize: '.66rem', letterSpacing: '.4em', textTransform: 'uppercase', padding: '15px 30px', background: 'transparent', color: '#111111', border: '1px solid rgba(0,0,0,.1)', cursor: 'none', transition: 'border-color .35s' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#c9a96e')}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,0,0,.1)')}
-            >WhatsApp</button>
-          </div>
-        </form>
+
+          <form action="https://formsubmit.co/joshiabishek987@gmail.com" method="POST" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+            <input type="hidden" name="_subject" value="New message from portfolio!" />
+            <input type="hidden" name="_captcha" value="false" />
+
+            <div>
+              <label style={labelStyle}>Your Name</label>
+              <input
+                type="text"
+                name="name"
+                placeholder="Full name"
+                style={inputStyle('name')}
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                onFocus={() => setFocused('name')}
+                onBlur={() => setFocused(null)}
+                required
+              />
+            </div>
+
+            <div>
+              <label style={labelStyle}>Email Address</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="you@email.com"
+                style={inputStyle('email')}
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                onFocus={() => setFocused('email')}
+                onBlur={() => setFocused(null)}
+                required
+              />
+            </div>
+
+            <div>
+              <label style={labelStyle}>Message</label>
+              <textarea
+                name="message"
+                rows={5}
+                placeholder="Share your vision or project details..."
+                style={{ ...inputStyle('message'), resize: 'none' }}
+                value={form.message}
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                onFocus={() => setFocused('message')}
+                onBlur={() => setFocused(null)}
+                required
+              />
+            </div>
+
+            {/* Buttons */}
+            <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
+              <button
+                type="submit"
+                data-hover
+                style={{
+                  flex: 1,
+                  fontFamily: "'DM Sans'",
+                  fontSize: '.64rem',
+                  letterSpacing: '.42em',
+                  textTransform: 'uppercase',
+                  padding: '17px 24px',
+                  background: '#c9a96e',
+                  color: '#0a0a0a',
+                  border: 'none',
+                  cursor: 'none',
+                  transition: 'background .4s ease, transform .3s ease',
+                  fontWeight: 500,
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.background = '#dfc088'
+                  el.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.background = '#c9a96e'
+                  el.style.transform = 'translateY(0)'
+                }}
+              >
+                Send Inquiry
+              </button>
+              <button
+                type="button"
+                onClick={handleWhatsApp}
+                data-hover
+                style={{
+                  fontFamily: "'DM Sans'",
+                  fontSize: '.64rem',
+                  letterSpacing: '.42em',
+                  textTransform: 'uppercase',
+                  padding: '17px 24px',
+                  background: 'transparent',
+                  color: '#f0ede8',
+                  border: '1px solid rgba(255,255,255,.1)',
+                  cursor: 'none',
+                  transition: 'border-color .4s ease, color .4s ease, transform .3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = 'rgba(201,169,110,.5)'
+                  el.style.color = '#c9a96e'
+                  el.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = 'rgba(255,255,255,.1)'
+                  el.style.color = '#f0ede8'
+                  el.style.transform = 'translateY(0)'
+                }}
+              >
+                {/* WhatsApp icon */}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg>
+                WhatsApp
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </section>
   )
 }
+
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 

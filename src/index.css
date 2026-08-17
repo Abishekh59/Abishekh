@@ -97,6 +97,21 @@ body {
   animation: scroll-cue 2s ease-in-out infinite;
 }
 
+/* Contact section — two-column layout on desktop */
+@media (min-width: 768px) {
+  .contact-grid { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* Contact pulse animation */
+@keyframes contact-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201,169,110,.55); }
+  50% { box-shadow: 0 0 0 6px rgba(201,169,110,0); }
+}
+
+.contact-pulse {
+  animation: contact-pulse 2.2s ease-in-out infinite;
+}
+
 /* Cursor */
 #cursor {
   pointer-events: none;
