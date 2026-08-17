@@ -77,11 +77,17 @@ const MARQUEE_SET = ALL_IMAGES.filter(item => item.collection !== 'AI');
 function Cursor() {
   const ref = useRef<HTMLDivElement>(null)
   const [bloom, setBloom] = useState(false)
+  const rafId = useRef<number>(0)
 
   useEffect(() => {
+    let mx = 0, my = 0
+    const tick = () => {
+      if (ref.current) ref.current.style.transform = `translate3d(${mx}px,${my}px,0)`
+    }
     const move = (e: MouseEvent) => {
-      if (!ref.current) return
-      ref.current.style.transform = `translate(${e.clientX}px,${e.clientY}px)`
+      mx = e.clientX; my = e.clientY
+      cancelAnimationFrame(rafId.current)
+      rafId.current = requestAnimationFrame(tick)
     }
     const over = (e: MouseEvent) => {
       if ((e.target as HTMLElement).closest('a,button,[data-hover]')) setBloom(true)
@@ -89,10 +95,11 @@ function Cursor() {
     const out = (e: MouseEvent) => {
       if (!(e.target as HTMLElement).closest('a,button,[data-hover]')) setBloom(false)
     }
-    window.addEventListener('mousemove', move)
+    window.addEventListener('mousemove', move, { passive: true })
     window.addEventListener('mouseover', over)
     window.addEventListener('mouseout', out)
     return () => {
+      cancelAnimationFrame(rafId.current)
       window.removeEventListener('mousemove', move)
       window.removeEventListener('mouseover', over)
       window.removeEventListener('mouseout', out)
@@ -112,6 +119,7 @@ function Cursor() {
         left: 0,
         zIndex: 9999,
         pointerEvents: 'none',
+        willChange: 'transform',
         // offset so the lens centre (≈60% down, 50% across) is the hotspot
         marginLeft: -size * 0.5,
         marginTop: -size * 0.6,
@@ -230,7 +238,7 @@ function Hero() {
   return (
     <section id="top" style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden', background: '#f4f1ec' }}>
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-        <img src={heroImg} alt="Hero image" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', backgroundColor: '#dedad4' }} />
+        <img src={heroImg} alt="Hero image" loading="eager" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', backgroundColor: '#dedad4' }} />
       </div>
 
       {/* Gradient */}
@@ -270,7 +278,7 @@ function Marquee({ onImageClick }: { onImageClick: (item: GalleryItem) => void }
         <div className="marquee-track" style={{ display: 'flex', gap: 8, width: 'max-content' }}>
           {imgs.map((item, i) => (
             <div key={i} data-hover onClick={() => onImageClick(item)} style={{ flexShrink: 0, width: i % 3 === 0 ? 220 : 310, height: 150, overflow: 'hidden', background: '#dedad4', position: 'relative', cursor: 'none' }}>
-              <img src={item.url} alt={item.alt} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'grayscale(1)', transition: 'filter .65s ease,transform .65s ease', transform: 'scale(1)' }}
+              <img src={item.url} alt={item.alt} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'grayscale(1)', transition: 'filter .65s ease,transform .65s ease', transform: 'scale(1)', willChange: 'transform, filter' }}
                 onMouseEnter={(e) => { const img = e.currentTarget; img.style.filter = 'grayscale(0)'; img.style.transform = 'scale(1.05)' }}
                 onMouseLeave={(e) => { const img = e.currentTarget; img.style.filter = 'grayscale(1)'; img.style.transform = 'scale(1)' }}
               />
@@ -307,12 +315,15 @@ function GCard({ item, onOpen }: { item: GalleryItem; onOpen: (i: GalleryItem) =
       <img
         src={item.url}
         alt={item.alt}
+        loading="lazy"
+        decoding="async"
         style={{
           width: '100%',
           height: 'auto',
           display: 'block',
           transform: h ? 'scale(1.04)' : 'scale(1)',
           transition: 'transform .65s cubic-bezier(.25,1,.5,1)',
+          willChange: 'transform',
           // Sharp edges — no border-radius ever
           borderRadius: 0,
         }}
@@ -474,12 +485,15 @@ function WorkCard({ project, index }: { project: typeof PROJECTS[0]; index: numb
           <img
             src={project.img}
             alt={`Screenshot of ${project.title}`}
+            loading="lazy"
+            decoding="async"
             style={{
               width: '100%',
               height: 'auto',
               display: 'block',
               transform: hovered ? 'scale(1.025)' : 'scale(1)',
               transition: 'transform .7s cubic-bezier(.25,1,.5,1)',
+              willChange: 'transform',
               borderRadius: 0,
             }}
           />
@@ -755,6 +769,8 @@ function About() {
         <img
           src={aboutImg}
           alt="Abishekh Joshi portrait"
+          loading="lazy"
+          decoding="async"
           style={{
             position: 'absolute',
             inset: 0,
@@ -764,6 +780,7 @@ function About() {
             objectPosition: 'center top',
             filter: 'grayscale(12%)',
             transition: 'transform .8s cubic-bezier(.25,.46,.45,.94)',
+            willChange: 'transform',
           }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLImageElement).style.transform = 'scale(1.04)' }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLImageElement).style.transform = 'scale(1)' }}
@@ -812,7 +829,7 @@ function Contact() {
   return (
     <section id="contact" style={{ padding: 'clamp(56px,7vw,110px) clamp(18px,4vw,64px)', borderTop: '1px solid rgba(0,0,0,.09)' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 'clamp(36px,6vw,88px)' }} className="md:grid-cols-2">
-        <div>
+        <div className="md:order-last">
           <p style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.66rem', letterSpacing: '.52em', textTransform: 'uppercase', marginBottom: 10 }}>Get in touch</p>
           <h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#111111', fontSize: 'clamp(2rem,5vw,4rem)', lineHeight: .95, marginBottom: 22 }}>Want to<br />collaborate?</h2>
           <p style={{ fontFamily: "'DM Sans'", color: '#6b6b6b', fontSize: '.88rem', lineHeight: 1.8, marginBottom: 36 }}>Design project, photography commission, or just to talk craft — I'm a message away.</p>
@@ -826,7 +843,7 @@ function Contact() {
           </div>
         </div>
 
-        <form action="https://formsubmit.co/joshiabishek987@gmail.com" method="POST" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <form className="md:order-first" action="https://formsubmit.co/joshiabishek987@gmail.com" method="POST" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <input type="hidden" name="_subject" value="New message from portfolio!" />
           <input type="hidden" name="_captcha" value="false" />
           
@@ -909,13 +926,13 @@ function Modal({ item, onClose }: { item: GalleryItem | null; onClose: () => voi
               <p style={{ fontFamily: "'DM Sans'", color: '#6b6b6b', fontSize: '.78rem' }}>{item.subtitle}</p>
             </div>
             <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#111111', fontSize: 30, lineHeight: 1, opacity: .4, cursor: 'none', paddingLeft: 20, transition: 'opacity .3s' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = '1')}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = '.4')}
+              onMouseEnter={(e) => requestAnimationFrame(() => ((e.currentTarget as HTMLElement).style.opacity = '1'))}
+              onMouseLeave={(e) => requestAnimationFrame(() => ((e.currentTarget as HTMLElement).style.opacity = '.4'))}
               aria-label="Close"
             >×</button>
           </div>
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 36px 28px', minHeight: 0 }}>
-            <img src={item.url.replace(/w=\d+&h=\d+/, 'w=1600&h=1000')} alt={item.alt} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block', backgroundColor: '#f4f1ec' }} />
+            <img src={item.url.replace(/w=\d+&h=\d+/, 'w=1600&h=1000')} alt={item.alt} loading="lazy" decoding="async" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block', backgroundColor: '#f4f1ec' }} />
           </div>
         </div>
       )}

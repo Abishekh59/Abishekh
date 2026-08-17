@@ -72,10 +72,17 @@ body {
 
 .marquee-track {
   animation: marquee 240s linear infinite;
+  will-change: transform;
 }
 
 .marquee-wrap:hover .marquee-track {
   animation-play-state: paused;
+}
+
+/* Content-visibility: skip rendering off-screen gallery cards */
+.pin-grid > div {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
 }
 
 /* Scroll cue animation */
