@@ -797,10 +797,17 @@ function About() {
 // ─── Contact ──────────────────────────────────────────────────────────────────
 
 function Contact() {
-  const [form, setForm] = useState({ name: '', email: '', msg: '' })
+  const [form, setForm] = useState({ name: '', email: '', message: '' })
   const inp: React.CSSProperties = { width: '100%', background: 'transparent', border: '1px solid rgba(0,0,0,.1)', color: '#111111', fontFamily: "'DM Sans'", fontSize: '.86rem', padding: '13px 16px', outline: 'none', transition: 'border-color .35s' }
   const lbl: React.CSSProperties = { fontFamily: "'DM Sans'", color: '#6b6b6b', fontSize: '.6rem', letterSpacing: '.4em', textTransform: 'uppercase', display: 'block', marginBottom: 7 }
-  const sub = (e: React.FormEvent) => { e.preventDefault(); window.open(`https://wa.me/9779815025634?text=${encodeURIComponent(`Hi Abishekh,\nName: ${form.name}\nEmail: ${form.email}\n\n${form.msg}`)}`, '_blank') }
+
+  const handleWhatsApp = () => {
+    if (!form.name || !form.message) {
+      alert("Please enter your name and message to send via WhatsApp.");
+      return;
+    }
+    window.open(`https://wa.me/9779815025634?text=${encodeURIComponent(`Hi Abishekh,\nName: ${form.name}\nEmail: ${form.email}\n\n${form.message}`)}`, '_blank')
+  }
 
   return (
     <section id="contact" style={{ padding: 'clamp(56px,7vw,110px) clamp(18px,4vw,64px)', borderTop: '1px solid rgba(0,0,0,.09)' }}>
@@ -819,29 +826,47 @@ function Contact() {
           </div>
         </div>
 
-        <form onSubmit={sub} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {[{ id: 'name', lbl: 'Your Name', type: 'text', ph: 'Your full name', val: form.name, fn: (v: string) => setForm(p => ({ ...p, name: v })) }, { id: 'email', lbl: 'Email Address', type: 'email', ph: 'Your email address', val: form.email, fn: (v: string) => setForm(p => ({ ...p, email: v })) }].map((f) => (
-            <div key={f.id}>
-              <label style={lbl}>{f.lbl}</label>
-              <input type={f.type} placeholder={f.ph} value={f.val} onChange={(e) => f.fn(e.target.value)} style={inp}
-                onFocus={(e) => (e.target.style.borderColor = 'rgba(201,169,110,.6)')}
-                onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,.1)')}
-                required
-              />
-            </div>
-          ))}
+        <form action="https://formsubmit.co/joshiabishek987@gmail.com" method="POST" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <input type="hidden" name="_subject" value="New message from portfolio!" />
+          <input type="hidden" name="_captcha" value="false" />
+          
           <div>
-            <label style={lbl}>Message</label>
-            <textarea rows={5} placeholder="Write something..." value={form.msg} onChange={(e) => setForm(p => ({ ...p, msg: e.target.value }))} style={{ ...inp, resize: 'none' }}
+            <label style={lbl}>Your Name</label>
+            <input type="text" name="name" placeholder="Your full name" style={inp}
+              value={form.name} onChange={(e) => setForm({...form, name: e.target.value})}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(201,169,110,.6)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,.1)')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(0,0,0,.1)')}
               required
             />
           </div>
-          <button type="submit" style={{ fontFamily: "'DM Sans'", fontSize: '.66rem', letterSpacing: '.4em', textTransform: 'uppercase', padding: '15px 30px', background: '#c9a96e', color: '#080808', border: 'none', cursor: 'none', alignSelf: 'flex-start', transition: 'background .35s' }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = '#f0ece4')}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = '#c9a96e')}
-          >Send via WhatsApp</button>
+          <div>
+            <label style={lbl}>Email Address</label>
+            <input type="email" name="email" placeholder="Your email address" style={inp}
+              value={form.email} onChange={(e) => setForm({...form, email: e.target.value})}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(201,169,110,.6)')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(0,0,0,.1)')}
+              required
+            />
+          </div>
+          <div>
+            <label style={lbl}>Message</label>
+            <textarea name="message" rows={5} placeholder="Write something..." style={{ ...inp, resize: 'none' }}
+              value={form.message} onChange={(e) => setForm({...form, message: e.target.value})}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(201,169,110,.6)')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(0,0,0,.1)')}
+              required
+            />
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 4 }}>
+            <button type="submit" style={{ fontFamily: "'DM Sans'", fontSize: '.66rem', letterSpacing: '.4em', textTransform: 'uppercase', padding: '15px 30px', background: '#c9a96e', color: '#080808', border: 'none', cursor: 'none', transition: 'background .35s' }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = '#f0ece4')}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = '#c9a96e')}
+            >Send Email</button>
+            <button type="button" onClick={handleWhatsApp} style={{ fontFamily: "'DM Sans'", fontSize: '.66rem', letterSpacing: '.4em', textTransform: 'uppercase', padding: '15px 30px', background: 'transparent', color: '#111111', border: '1px solid rgba(0,0,0,.1)', cursor: 'none', transition: 'border-color .35s' }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#c9a96e')}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,0,0,.1)')}
+            >WhatsApp</button>
+          </div>
         </form>
       </div>
     </section>
