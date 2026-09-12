@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import abishekharImg from './imports/Abiskark_Joshi.png'
-import damakImg from './imports/Damak_Music_Circle_.png'
-import sachinImg from './imports/Sachin Yagol Shrestha.png'
-import heroImg from './photography/Landscape/1786773923331.jpg'
-import aboutImg from './AbishekforAbout.png'
+import abishekharImg from './imports/Abiskark_Joshi.webp'
+import damakImg from './imports/Damak_Music_Circle_.webp'
+import sachinImg from './imports/Sachin Yagol Shrestha.webp'
+import heroImg from './photography/Landscape/1786773923331.webp'
+import aboutImg from './AbishekforAbout.webp'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -442,18 +442,6 @@ const PROJECTS = [
     role: 'Designer & Developer',
   },
   {
-    img: damakImg,
-    title: 'Damak Music Circle',
-    subtitle: 'Music School · Damak, Nepal',
-    description:
-      'Full website for Damak Music Circle — a music school nurturing talent since 2018. Covers admissions, scholarship applications, studio booking, instrument store, and gallery. Dark gold editorial aesthetic.',
-    tags: ['Web Design', 'Branding', 'UX/UI', 'Nepal'],
-    label: 'Live · 2026',
-    url: 'https://www.damakmusiccircle.com/',
-    year: '2024',
-    role: 'Designer & Developer',
-  },
-  {
     img: sachinImg,
     title: 'Sachin Yagol Shrestha',
     subtitle: 'Personal Portfolio Website',
@@ -462,6 +450,18 @@ const PROJECTS = [
     tags: ['Web Design', 'UX/UI', 'Portfolio'],
     label: 'Live · 2026',
     url: 'https://www.sachinyagolshrestha.com.np/',
+    year: '2024',
+    role: 'Designer & Developer',
+  },
+  {
+    img: damakImg,
+    title: 'Damak Music Circle',
+    subtitle: 'Music School · Damak, Nepal',
+    description:
+      'Full website for Damak Music Circle — a music school nurturing talent since 2018. Covers admissions, scholarship applications, studio booking, instrument store, and gallery. Dark gold editorial aesthetic.',
+    tags: ['Web Design', 'Branding', 'UX/UI', 'Nepal'],
+    label: 'Live · 2026',
+    url: 'https://www.damakmusiccircle.com/',
     year: '2024',
     role: 'Designer & Developer',
   },
