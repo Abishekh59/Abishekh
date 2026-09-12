@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import abishekharImg from './imports/Abiskark_Joshi.png'
 import damakImg from './imports/Damak_Music_Circle_.png'
+import sachinImg from './imports/Sachin Yagol Shrestha.png'
 import heroImg from './photography/Landscape/1786773923331.jpg'
 import aboutImg from './AbishekforAbout.png'
 
@@ -106,9 +107,9 @@ function Cursor() {
     }
   }, [])
 
-  // Camera icon — body colour shifts to gold on hover, size grows
-  const size = bloom ? 30 : 22
-  const col = bloom ? '#c9a96e' : '#1a1a1a'
+  // Camera icon — body colour and size stay constant
+  const size = 22
+  const col = '#1a1a1a'
 
   return (
     <div
@@ -142,19 +143,19 @@ function Cursor() {
         <path d="M9 6l1.5-3h3L15 6" fill={col} style={{ transition: 'fill .35s ease' }} />
         {/* Lens ring outer */}
         <circle cx="12" cy="13" r="4.5"
-          fill={bloom ? 'rgba(201,169,110,.18)' : 'rgba(255,255,255,.15)'}
-          stroke={bloom ? '#c9a96e' : 'rgba(255,255,255,.6)'}
+          fill="rgba(255,255,255,.15)"
+          stroke="rgba(255,255,255,.6)"
           strokeWidth="1.2"
           style={{ transition: 'all .35s ease' }}
         />
         {/* Lens ring inner */}
         <circle cx="12" cy="13" r="2.2"
-          fill={bloom ? 'rgba(201,169,110,.35)' : 'rgba(255,255,255,.25)'}
+          fill="rgba(255,255,255,.25)"
           style={{ transition: 'fill .35s ease' }}
         />
         {/* Flash dot */}
         <circle cx="19" cy="9" r="1"
-          fill={bloom ? '#c9a96e' : 'rgba(255,255,255,.5)'}
+          fill="rgba(255,255,255,.5)"
           style={{ transition: 'fill .35s ease' }}
         />
       </svg>
@@ -452,27 +453,33 @@ const PROJECTS = [
     year: '2024',
     role: 'Designer & Developer',
   },
+  {
+    img: sachinImg,
+    title: 'Sachin Yagol Shrestha',
+    subtitle: 'Personal Portfolio Website',
+    description:
+      'Portfolio website for Sachin Yagol Shrestha. Designed and developed to showcase work and skills with a clean, modern aesthetic.',
+    tags: ['Web Design', 'UX/UI', 'Portfolio'],
+    label: 'Live · 2026',
+    url: 'https://www.sachinyagolshrestha.com.np/',
+    year: '2024',
+    role: 'Designer & Developer',
+  },
 ]
 
 function WorkCard({ project, index }: { project: typeof PROJECTS[0]; index: number }) {
   const [hovered, setHovered] = useState(false)
-  const isEven = index % 2 === 0
 
   return (
     <article
-      className="work-project"
       style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr',
-        borderTop: '1px solid rgba(0,0,0,.08)',
-        paddingTop: 'clamp(40px,6vw,80px)',
-        paddingBottom: 'clamp(40px,6vw,80px)',
-        gap: 'clamp(28px,4vw,56px)',
-        alignItems: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
       }}
     >
       {/* Screenshot */}
-      <div className={isEven ? '' : 'work-img-right'}>
+      <div>
         <a
           href={project.url}
           target="_blank"
@@ -495,6 +502,7 @@ function WorkCard({ project, index }: { project: typeof PROJECTS[0]; index: numb
               transition: 'transform .7s cubic-bezier(.25,1,.5,1)',
               willChange: 'transform',
               borderRadius: 0,
+              border: '1px solid rgba(0,0,0,.04)',
             }}
           />
           {/* "Visit site" overlay on hover */}
@@ -515,11 +523,11 @@ function WorkCard({ project, index }: { project: typeof PROJECTS[0]; index: numb
               alignItems: 'center',
               gap: 10,
               border: '1px solid rgba(201,169,110,.8)',
-              padding: '12px 24px',
+              padding: '10px 20px',
               background: 'rgba(8,8,8,.5)',
               backdropFilter: 'blur(4px)',
             }}>
-              <span style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.68rem', letterSpacing: '.38em', textTransform: 'uppercase' }}>
+              <span style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.6rem', letterSpacing: '.38em', textTransform: 'uppercase' }}>
                 Visit Site
               </span>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -531,89 +539,83 @@ function WorkCard({ project, index }: { project: typeof PROJECTS[0]; index: numb
       </div>
 
       {/* Text col */}
-      <div className={isEven ? '' : 'work-text-right'} style={{ padding: '0 clamp(0px,2vw,32px)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         {/* Index + label */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-          <span style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.6rem', letterSpacing: '.5em', textTransform: 'uppercase' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <span style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.55rem', letterSpacing: '.4em', textTransform: 'uppercase' }}>
             {String(index + 1).padStart(2, '0')}
           </span>
-          <span style={{ width: 32, height: '1px', background: '#c9a96e', flexShrink: 0 }} />
-          <span style={{ fontFamily: "'DM Sans'", color: '#6b6b6b', fontSize: '.6rem', letterSpacing: '.4em', textTransform: 'uppercase' }}>
+          <span style={{ width: 24, height: '1px', background: '#c9a96e', flexShrink: 0 }} />
+          <span style={{ fontFamily: "'DM Sans'", color: '#6b6b6b', fontSize: '.55rem', letterSpacing: '.3em', textTransform: 'uppercase' }}>
             {project.label}
           </span>
         </div>
 
         {/* Title */}
-        <h3 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#111111', fontSize: 'clamp(1.6rem,3.5vw,2.8rem)', lineHeight: .95, marginBottom: 8 }}>
+        <h3 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#111111', fontSize: 'clamp(1.4rem,2vw,1.8rem)', lineHeight: 1.1, marginBottom: 6 }}>
           {project.title}
         </h3>
-        <p style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#6b6b6b', fontSize: 'clamp(.88rem,1.2vw,1rem)', fontStyle: 'italic', marginBottom: 20 }}>
+        <p style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#6b6b6b', fontSize: 'clamp(.8rem,1vw,.9rem)', fontStyle: 'italic', marginBottom: 16 }}>
           {project.subtitle}
         </p>
 
         {/* Description */}
-        <p style={{ fontFamily: "'DM Sans'", color: '#5a5a5a', fontSize: 'clamp(.82rem,1.1vw,.92rem)', lineHeight: 1.82, marginBottom: 28, maxWidth: 460 }}>
+        <p style={{ fontFamily: "'DM Sans'", color: '#5a5a5a', fontSize: 'clamp(.78rem,1vw,.85rem)', lineHeight: 1.7, marginBottom: 20, flexGrow: 1 }}>
           {project.description}
         </p>
 
-        {/* Meta row */}
-        <div style={{ display: 'flex', gap: 32, marginBottom: 28, paddingBottom: 24, borderBottom: '1px solid rgba(0,0,0,.08)' }}>
-          {[
-            { label: 'Year', value: project.year },
-            { label: 'Role', value: project.role },
-          ].map((m) => (
-            <div key={m.label}>
-              <p style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.55rem', letterSpacing: '.42em', textTransform: 'uppercase', marginBottom: 4 }}>{m.label}</p>
-              <p style={{ fontFamily: "'DM Sans'", color: '#111111', fontSize: '.8rem' }}>{m.value}</p>
-            </div>
-          ))}
-        </div>
-
         {/* Tags */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 28 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 24 }}>
           {project.tags.map((t) => (
-            <span key={t} style={{ fontFamily: "'DM Sans'", color: '#6b6b6b', fontSize: '.58rem', letterSpacing: '.28em', textTransform: 'uppercase', padding: '5px 12px', border: '1px solid rgba(0,0,0,.1)' }}>
+            <span key={t} style={{ fontFamily: "'DM Sans'", color: '#6b6b6b', fontSize: '.55rem', letterSpacing: '.25em', textTransform: 'uppercase', padding: '4px 10px', border: '1px solid rgba(0,0,0,.1)' }}>
               {t}
             </span>
           ))}
         </div>
 
-        {/* CTA */}
-        <a
-          href={project.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-hover
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 10,
-            fontFamily: "'DM Sans'",
-            color: '#111111',
-            fontSize: '.65rem',
-            letterSpacing: '.38em',
-            textTransform: 'uppercase',
-            textDecoration: 'none',
-            paddingBottom: 4,
-            borderBottom: '1px solid rgba(0,0,0,.25)',
-            transition: 'color .35s, border-color .35s',
-          }}
-          onMouseEnter={(e) => {
-            const el = e.currentTarget as HTMLElement
-            el.style.color = '#c9a96e'
-            el.style.borderBottomColor = '#c9a96e'
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget as HTMLElement
-            el.style.color = '#111111'
-            el.style.borderBottomColor = 'rgba(0,0,0,.25)'
-          }}
-        >
-          View Live Site
-          <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-            <path d="M1 5.5h9M5.5 1l4.5 4.5L5.5 10" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </a>
+        {/* CTA & Meta */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(0,0,0,.08)', paddingTop: 16 }}>
+          <div>
+            <p style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.5rem', letterSpacing: '.3em', textTransform: 'uppercase', marginBottom: 2 }}>{project.role}</p>
+            <p style={{ fontFamily: "'DM Sans'", color: '#111111', fontSize: '.75rem' }}>{project.year}</p>
+          </div>
+          
+          <a
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-hover
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              fontFamily: "'DM Sans'",
+              color: '#111111',
+              fontSize: '.6rem',
+              letterSpacing: '.3em',
+              textTransform: 'uppercase',
+              textDecoration: 'none',
+              paddingBottom: 2,
+              borderBottom: '1px solid rgba(0,0,0,.25)',
+              transition: 'color .35s, border-color .35s',
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLElement
+              el.style.color = '#c9a96e'
+              el.style.borderBottomColor = '#c9a96e'
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLElement
+              el.style.color = '#111111'
+              el.style.borderBottomColor = 'rgba(0,0,0,.25)'
+            }}
+          >
+            Visit
+            <svg width="10" height="10" viewBox="0 0 11 11" fill="none">
+              <path d="M1 5.5h9M5.5 1l4.5 4.5L5.5 10" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
+        </div>
       </div>
     </article>
   )
@@ -634,7 +636,7 @@ function Work() {
       </div>
 
       {/* Project list */}
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 lg:gap-12">
         {PROJECTS.map((p, i) => <WorkCard key={p.title} project={p} index={i} />)}
       </div>
     </section>
