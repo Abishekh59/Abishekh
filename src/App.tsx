@@ -1228,7 +1228,15 @@ function Modal({ item, onClose }: { item: GalleryItem | null; onClose: () => voi
 
 // ─── Films ────────────────────────────────────────────────────────────────────
 
-const FILMS = [
+type Film = {
+  id: string;
+  title: string;
+  year: string;
+  customThumb?: string;
+  customUrl?: string;
+};
+
+const FILMS: Film[] = [
   {
     id: 'LFSU-SqMrgk',
     title: 'Ankita Pun — Maili',
@@ -1259,13 +1267,19 @@ const FILMS = [
     title: 'Treble Clef — समीप (Official Video)',
     year: '2023',
   },
+  {
+    id: 'video-editing-lab',
+    title: 'Video Editing Lab — Practice & Projects',
+    year: '2024-2026',
+    customThumb: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=2070&auto=format&fit=crop',
+    customUrl: 'https://drive.google.com/drive/folders/1bGPh7UEvSjU9asL5WFq5tmGTBCKmznxV?usp=drive_link',
+  }
 ]
-
-type Film = typeof FILMS[0]
 
 function FilmCard({ film }: { film: Film }) {
   const [h, setH] = useState(false)
-  const thumb = `https://img.youtube.com/vi/${film.id}/maxresdefault.jpg`
+  const thumb = film.customThumb || `https://img.youtube.com/vi/${film.id}/maxresdefault.jpg`
+  const link = film.customUrl || `https://youtube.com/watch?v=${film.id}`
 
   return (
     <div
@@ -1273,7 +1287,7 @@ function FilmCard({ film }: { film: Film }) {
       style={{ position: 'relative', overflow: 'hidden', background: '#111', cursor: 'none', breakInside: 'avoid', marginBottom: 10 }}
       onMouseEnter={() => setH(true)}
       onMouseLeave={() => setH(false)}
-      onClick={() => window.open(`https://youtube.com/watch?v=${film.id}`, '_blank')}
+      onClick={() => window.open(link, '_blank')}
     >
       {/* Thumbnail */}
       <img
@@ -1289,6 +1303,7 @@ function FilmCard({ film }: { film: Film }) {
           transition: 'transform .65s cubic-bezier(.25,1,.5,1), filter .45s ease',
         }}
         onError={(e) => {
+          if (film.customThumb) return;
           // Fallback to hqdefault if maxresdefault not available
           const el = e.currentTarget as HTMLImageElement
           if (!el.src.includes('hqdefault')) {
