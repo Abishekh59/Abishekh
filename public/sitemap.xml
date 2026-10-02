@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Homepage -->
+  <url>
+    <loc>https://abishekhjoshi.com.np/</loc>
+    <lastmod>2026-10-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!--
+    This is a single-page application. All sections (#about, #work,
+    #photography, #films, #contact) live on the homepage URL.
+    Only the canonical root URL is listed here — fragment identifiers
+    (#) are not separate pages and must not be submitted as distinct URLs.
+
+    When new standalone pages are added (e.g. /blog, /projects/name),
+    add them as separate <url> entries here and update <lastmod>.
+  -->
+
+</urlset>

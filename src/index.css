@@ -97,9 +97,17 @@ body {
   animation: scroll-cue 2s ease-in-out infinite;
 }
 
-/* Contact section — two-column layout on desktop */
+/* Contact booking — two-panel layout on desktop */
 @media (min-width: 768px) {
-  .contact-grid { grid-template-columns: 1fr 1fr !important; }
+  .contact-booking-grid { grid-template-columns: 380px 1fr !important; }
+}
+@media (min-width: 1024px) {
+  .contact-booking-grid { grid-template-columns: 420px 1fr !important; }
+}
+
+/* Phone / date row — stacked on mobile, side-by-side on tablet+ */
+@media (max-width: 500px) {
+  .contact-row-grid { grid-template-columns: 1fr !important; }
 }
 
 /* Contact pulse animation */

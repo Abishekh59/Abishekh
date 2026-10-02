@@ -1,4 +1,11 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { useSEO } from './seo/useSEO'
+import {
+  buildPersonSchema,
+  buildWebSiteSchema,
+  buildWebPageSchema,
+  buildPortfolioSchema,
+} from './seo/schema'
 import abishekharImg from './imports/Abiskark_Joshi.webp'
 import damakImg from './imports/Damak_Music_Circle_.webp'
 import sachinImg from './imports/Sachin Yagol Shrestha.webp'
@@ -815,359 +822,392 @@ function About() {
 
 // ─── Contact ──────────────────────────────────────────────────────────────────
 
-function Contact() {
-  const [form, setForm] = useState({ name: '', email: '', message: '' })
-  const [focused, setFocused] = useState<string | null>(null)
+// Service definitions — each drives the left panel content dynamically
+const SERVICES = [
+  {
+    id: 'photography',
+    label: 'Photography',
+    heading: 'Book a\nPhotoshoot',
+    tagline: 'Portrait · Concert · Culture · Wedding · Landscape',
+    description:
+      'From intimate portraits to large-scale concert coverage — let\'s capture something that lasts.',
+    duration: '1–4 hours on location',
+    delivery: '5–7 business days',
+    placeholder: 'Describe the shoot — occasion, location, mood, number of people…',
+    subjectLabel: 'New Photography Booking',
+    index: '01',
+  },
+  {
+    id: 'editing',
+    label: 'Video Editing',
+    heading: 'Video\nEditing',
+    tagline: 'Music Videos · Short Films · Reels · Docs',
+    description:
+      'Cinematic cuts, colour grades, and motion work for music artists, brands, and creators.',
+    duration: 'Project-dependent',
+    delivery: '3–10 business days',
+    placeholder: 'Share your footage details, style references, platform, and deadline…',
+    subjectLabel: 'New Video Editing Project',
+    index: '02',
+  },
+  {
+    id: 'design',
+    label: 'Web Design',
+    heading: 'Website\nDesign',
+    tagline: 'Portfolio · Brand · Business · School',
+    description:
+      'End-to-end design and development — from wireframe to deployed, live website.',
+    duration: '30–45 min discovery call',
+    delivery: '2–4 weeks per project',
+    placeholder: 'Tell me about your business, goals, pages needed, and any reference sites you like…',
+    subjectLabel: 'New Website Design Project',
+    index: '03',
+  },
+  {
+    id: 'other',
+    label: 'Something else',
+    heading: 'Let\'s Talk\nCraft',
+    tagline: 'Collaboration · Licensing · Just a chat',
+    description:
+      'Not sure which service fits? Drop a message and we\'ll figure it out together.',
+    duration: 'Flexible',
+    delivery: 'Depends on scope',
+    placeholder: 'Tell me what\'s on your mind…',
+    subjectLabel: 'New Inquiry from Portfolio',
+    index: '04',
+  },
+] as const
 
-  const handleWhatsApp = () => {
-    if (!form.name || !form.message) {
-      alert("Please enter your name and message to send via WhatsApp.");
-      return;
-    }
-    window.open(`https://wa.me/9779815025634?text=${encodeURIComponent(`Hi Abishekh,\nName: ${form.name}\nEmail: ${form.email}\n\n${form.message}`)}`, '_blank')
-  }
+type ServiceId = typeof SERVICES[number]['id']
+
+function Contact() {
+  const [serviceId, setServiceId] = useState<ServiceId>('photography')
+  const [form, setForm] = useState({ name: '', phone: '', date: '', brief: '' })
+  const [focused, setFocused] = useState<string | null>(null)
+  const [sent, setSent] = useState(false)
+
+  const service = SERVICES.find(s => s.id === serviceId)!
 
   const inputStyle = (field: string): React.CSSProperties => ({
     width: '100%',
     background: 'rgba(255,255,255,.04)',
     border: '1px solid',
-    borderColor: focused === field ? 'rgba(201,169,110,.6)' : 'rgba(255,255,255,.08)',
+    borderColor: focused === field ? 'rgba(201,169,110,.55)' : 'rgba(255,255,255,.08)',
     color: '#f0ede8',
-    fontFamily: "'DM Sans'",
+    fontFamily: "'DM Sans',system-ui,sans-serif",
     fontSize: '.88rem',
-    padding: '16px 18px',
+    padding: '14px 16px',
     outline: 'none',
-    transition: 'border-color .4s ease, background .4s ease',
+    transition: 'border-color .35s',
     borderRadius: 0,
+    appearance: 'none' as const,
+    WebkitAppearance: 'none' as const,
   })
 
   const labelStyle: React.CSSProperties = {
-    fontFamily: "'DM Sans'",
-    color: 'rgba(240,237,232,.4)',
-    fontSize: '.58rem',
+    fontFamily: "'DM Sans',system-ui,sans-serif",
+    color: 'rgba(240,237,232,.38)',
+    fontSize: '.55rem',
     letterSpacing: '.42em',
     textTransform: 'uppercase',
     display: 'block',
-    marginBottom: 8,
+    marginBottom: 7,
   }
 
-  const contactItems = [
-    {
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="2" y="4" width="20" height="16" rx="2" />
-          <path d="M22 4l-10 8L2 4" />
-        </svg>
-      ),
-      label: 'Email',
-      value: 'joshiabishek987@gmail.com',
-      href: 'mailto:joshiabishek987@gmail.com',
-    },
-    {
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
-        </svg>
-      ),
-      label: 'Phone',
-      value: '+977 9815025634',
-      href: 'tel:+9779815025634',
-    },
-    {
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-          <circle cx="12" cy="10" r="3" />
-        </svg>
-      ),
-      label: 'Based in',
-      value: 'Kathmandu, Nepal',
-    },
-  ]
+  const handleWhatsApp = () => {
+    if (!form.name.trim() || !form.brief.trim()) return
+    const lines = [
+      `Hi Abishekh,`,
+      `Service: ${service.label}`,
+      `Name: ${form.name}`,
+      form.phone ? `Phone: ${form.phone}` : '',
+      form.date ? `Preferred date: ${form.date}` : '',
+      ``,
+      form.brief,
+    ].filter(Boolean).join('\n')
+    window.open(`https://wa.me/9779815025634?text=${encodeURIComponent(lines)}`, '_blank')
+  }
 
-  const socials = [
-    { label: 'Instagram', href: 'https://www.instagram.com/abishek_joshi_/', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg> },
-    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/abishekh-joshi-41135a2a0/', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg> },
-    { label: 'Facebook', href: 'https://www.facebook.com/abishek.joshi.79', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg> },
-    { label: 'TikTok', href: 'https://www.tiktok.com/@abishekjoshi59', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 104 4V4a5 5 0 005 5" /></svg> },
-  ]
+  if (sent) {
+    return (
+      <section id="contact" style={{ position: 'relative', background: '#0a0a0a', minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(to right,transparent,rgba(201,169,110,.25),transparent)' }} />
+        <div style={{ textAlign: 'center', padding: '40px 24px' }}>
+          <div style={{ width: 56, height: 56, border: '1px solid rgba(201,169,110,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 28px' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+          </div>
+          <h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#f0ede8', fontSize: 'clamp(1.8rem,4vw,3rem)', lineHeight: 1, marginBottom: 14, fontStyle: 'italic' }}>Message sent.</h2>
+          <p style={{ fontFamily: "'DM Sans'", color: 'rgba(240,237,232,.4)', fontSize: '.9rem', lineHeight: 1.7, maxWidth: 380, margin: '0 auto 32px' }}>
+            I'll confirm your enquiry personally — usually within a day. Check WhatsApp for a quicker reply.
+          </p>
+          <button
+            data-hover
+            onClick={() => { setSent(false); setForm({ name: '', phone: '', date: '', brief: '' }) }}
+            style={{ fontFamily: "'DM Sans'", fontSize: '.6rem', letterSpacing: '.38em', textTransform: 'uppercase', padding: '13px 28px', background: 'transparent', color: '#c9a96e', border: '1px solid rgba(201,169,110,.35)', cursor: 'none', transition: 'border-color .35s' }}
+          >
+            Send another
+          </button>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section
       id="contact"
-      style={{
-        position: 'relative',
-        background: '#0a0a0a',
-        padding: 'clamp(72px,9vw,140px) clamp(18px,4vw,64px)',
-        overflow: 'hidden',
-      }}
+      style={{ position: 'relative', background: '#0a0a0a', padding: 'clamp(64px,8vw,120px) clamp(18px,4vw,64px)', overflow: 'hidden' }}
     >
-      {/* Decorative watermark number */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '-5%',
-          right: '-3%',
-          fontFamily: "'DM Serif Display',Georgia,serif",
-          fontSize: 'clamp(14rem,28vw,26rem)',
-          fontWeight: 400,
-          color: 'rgba(255,255,255,.018)',
-          lineHeight: 1,
-          pointerEvents: 'none',
-          userSelect: 'none',
-        }}
-      >
-        05
-      </div>
+      {/* Watermark */}
+      <div style={{ position: 'absolute', top: '-4%', right: '-2%', fontFamily: "'DM Serif Display',Georgia,serif", fontSize: 'clamp(12rem,24vw,22rem)', color: 'rgba(255,255,255,.016)', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>05</div>
+      {/* Top gold rule */}
+      <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(to right,transparent,rgba(201,169,110,.25),transparent)' }} />
 
-      {/* Subtle top gold line */}
-      <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(to right, transparent, rgba(201,169,110,.25), transparent)' }} />
+      <div style={{ position: 'relative', zIndex: 2, maxWidth: 1100, margin: '0 auto' }}>
 
-      {/* Content grid */}
-      <div className="contact-grid" style={{ position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: '1fr', gap: 'clamp(48px,7vw,96px)', maxWidth: 1100, margin: '0 auto' }}>
-
-        {/* ── Left column: heading + info ── */}
-        <div>
-          {/* Eyebrow */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 'clamp(28px,4vw,48px)' }}>
-            <span style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.58rem', letterSpacing: '.52em', textTransform: 'uppercase' }}>
-              05 — Contact
-            </span>
-            <span style={{ flex: 1, height: 1, background: 'rgba(201,169,110,.15)' }} />
+        {/* ── Section header ── */}
+        <div style={{ marginBottom: 'clamp(36px,5vw,60px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+            <span style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.58rem', letterSpacing: '.52em', textTransform: 'uppercase' }}>05 — Work With Me</span>
+            <span style={{ flex: 1, height: 1, background: 'rgba(201,169,110,.12)' }} />
           </div>
-
-          {/* Main heading */}
-          <h2
-            style={{
-              fontFamily: "'DM Serif Display',Georgia,serif",
-              color: '#f0ede8',
-              fontSize: 'clamp(2.4rem,6vw,4.8rem)',
-              lineHeight: .92,
-              marginBottom: 12,
-              fontStyle: 'italic',
-            }}
-          >
+          <h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#f0ede8', fontSize: 'clamp(2.2rem,5.5vw,4.4rem)', lineHeight: .92, fontStyle: 'italic', marginBottom: 0 }}>
             Let's Create<br />Together
           </h2>
+        </div>
 
-          <p style={{ fontFamily: "'DM Sans'", color: 'rgba(240,237,232,.35)', fontSize: 'clamp(.84rem,1.1vw,.95rem)', lineHeight: 1.8, maxWidth: 420, marginBottom: 'clamp(36px,5vw,56px)' }}>
-            Design project, photography commission, or just to talk craft — I'm a message away.
-          </p>
+        {/* ── Service selector tabs ── */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 'clamp(28px,4vw,48px)' }}>
+          {SERVICES.map(s => {
+            const active = s.id === serviceId
+            return (
+              <button
+                key={s.id}
+                data-hover
+                onClick={() => setServiceId(s.id)}
+                style={{
+                  fontFamily: "'DM Sans'",
+                  fontSize: '.6rem',
+                  letterSpacing: '.34em',
+                  textTransform: 'uppercase',
+                  padding: '10px 20px',
+                  border: '1px solid',
+                  borderColor: active ? '#c9a96e' : 'rgba(255,255,255,.1)',
+                  background: active ? 'rgba(201,169,110,.1)' : 'transparent',
+                  color: active ? '#c9a96e' : 'rgba(240,237,232,.45)',
+                  cursor: 'none',
+                  transition: 'all .3s ease',
+                }}
+              >
+                {s.label}
+              </button>
+            )
+          })}
+        </div>
 
-          {/* Contact details with icons */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {contactItems.map((item, i) => (
-              <div key={item.label}>
-                {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,.05)', margin: '18px 0' }} />}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-                  <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(201,169,110,.15)', flexShrink: 0 }}>
-                    {item.icon}
-                  </div>
-                  <div>
-                    <p style={{ fontFamily: "'DM Sans'", color: 'rgba(240,237,232,.3)', fontSize: '.55rem', letterSpacing: '.4em', textTransform: 'uppercase', marginBottom: 3 }}>
-                      {item.label}
-                    </p>
-                    {item.href ? (
-                      <a
-                        href={item.href}
-                        target={item.href.startsWith('http') ? '_blank' : undefined}
-                        rel="noopener noreferrer"
-                        data-hover
-                        style={{ fontFamily: "'DM Sans'", color: '#f0ede8', fontSize: '.88rem', textDecoration: 'none', transition: 'color .35s' }}
-                        onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#c9a96e')}
-                        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = '#f0ede8')}
-                      >
-                        {item.value}
-                      </a>
-                    ) : (
-                      <p style={{ fontFamily: "'DM Sans'", color: '#f0ede8', fontSize: '.88rem', margin: 0 }}>{item.value}</p>
-                    )}
+        {/* ── Two-panel card ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', border: '1px solid rgba(255,255,255,.07)' }} className="contact-booking-grid">
+
+          {/* LEFT panel — service details, changes with selection */}
+          <div
+            style={{
+              background: 'rgba(201,169,110,.06)',
+              borderRight: '1px solid rgba(255,255,255,.07)',
+              padding: 'clamp(28px,4vw,52px)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: 36,
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Corner index */}
+            <div style={{ position: 'absolute', top: 20, right: 24, fontFamily: "'DM Serif Display',Georgia,serif", color: 'rgba(201,169,110,.18)', fontSize: 'clamp(2.4rem,5vw,4rem)', lineHeight: 1, userSelect: 'none' }}>
+              {service.index}
+            </div>
+
+            <div>
+              {/* Eyebrow */}
+              <p style={{ fontFamily: "'DM Sans'", color: '#c9a96e', fontSize: '.55rem', letterSpacing: '.48em', textTransform: 'uppercase', marginBottom: 20 }}>
+                Personalised Session
+              </p>
+              {/* Heading — splits on \n */}
+              <h3 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#f0ede8', fontSize: 'clamp(1.9rem,4vw,3rem)', lineHeight: .96, marginBottom: 12 }}>
+                {service.heading.split('\n').map((line, i) => (
+                  <span key={i} style={{ display: 'block', fontStyle: i === 1 ? 'italic' : 'normal' }}>{line}</span>
+                ))}
+              </h3>
+              {/* Tagline */}
+              <p style={{ fontFamily: "'DM Sans'", color: 'rgba(240,237,232,.35)', fontSize: '.65rem', letterSpacing: '.22em', textTransform: 'uppercase', marginBottom: 20 }}>
+                {service.tagline}
+              </p>
+              {/* Description */}
+              <p style={{ fontFamily: "'DM Sans'", color: 'rgba(240,237,232,.5)', fontSize: '.88rem', lineHeight: 1.75 }}>
+                {service.description}
+              </p>
+            </div>
+
+            {/* Meta rows */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0, borderTop: '1px solid rgba(255,255,255,.07)', paddingTop: 24 }}>
+              {[
+                { k: 'Duration', v: service.duration },
+                { k: 'Delivery', v: service.delivery },
+                { k: 'Location', v: 'Kathmandu or remote' },
+              ].map(({ k, v }, i) => (
+                <div key={k}>
+                  {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,.05)', margin: '14px 0' }} />}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
+                    <span style={{ fontFamily: "'DM Sans'", color: 'rgba(240,237,232,.28)', fontSize: '.56rem', letterSpacing: '.38em', textTransform: 'uppercase' }}>{k}</span>
+                    <span style={{ fontFamily: "'DM Sans'", color: 'rgba(240,237,232,.65)', fontSize: '.8rem' }}>{v}</span>
                   </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Contact links */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                { label: 'joshiabishek987@gmail.com', href: 'mailto:joshiabishek987@gmail.com' },
+                { label: '+977 9815025634', href: 'tel:+9779815025634' },
+              ].map(item => (
+                <a key={item.label} href={item.href} data-hover style={{ fontFamily: "'DM Sans'", color: 'rgba(240,237,232,.38)', fontSize: '.78rem', textDecoration: 'none', transition: 'color .3s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#c9a96e')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(240,237,232,.38)')}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* RIGHT panel — form */}
+          <div style={{ background: 'rgba(255,255,255,.02)', padding: 'clamp(28px,4vw,52px)', backdropFilter: 'blur(10px)' }}>
+
+            {/* Status badge */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 30 }}>
+              <span className="contact-pulse" style={{ width: 6, height: 6, borderRadius: '50%', background: '#c9a96e', display: 'block', flexShrink: 0 }} />
+              <span style={{ fontFamily: "'DM Sans'", color: 'rgba(201,169,110,.65)', fontSize: '.54rem', letterSpacing: '.38em', textTransform: 'uppercase' }}>
+                Open to new projects · 2026
+              </span>
+            </div>
+
+            <p style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#f0ede8', fontSize: 'clamp(1rem,2vw,1.3rem)', marginBottom: 26, lineHeight: 1.3 }}>
+              Tell me about your {service.id === 'other' ? 'idea' : 'project'}
+            </p>
+
+            <form
+              action="https://formsubmit.co/joshiabishek987@gmail.com"
+              method="POST"
+              style={{ display: 'flex', flexDirection: 'column', gap: 18 }}
+              onSubmit={() => setTimeout(() => setSent(true), 200)}
+            >
+              <input type="hidden" name="_subject" value={service.subjectLabel} />
+              <input type="hidden" name="_captcha" value="false" />
+              <input type="hidden" name="service" value={service.label} />
+
+              {/* Name */}
+              <div>
+                <label style={labelStyle}>Full Name</label>
+                <input
+                  type="text" name="name" placeholder="e.g. Abishekh Joshi" required
+                  style={inputStyle('name')} value={form.name}
+                  onChange={e => setForm({ ...form, name: e.target.value })}
+                  onFocus={() => setFocused('name')} onBlur={() => setFocused(null)}
+                />
               </div>
-            ))}
+
+              {/* Phone + Date — side by side on wider screens */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }} className="contact-row-grid">
+                <div>
+                  <label style={labelStyle}>Phone / WhatsApp</label>
+                  <input
+                    type="tel" name="phone" placeholder="+977 98XXXXXXXX"
+                    style={inputStyle('phone')} value={form.phone}
+                    onChange={e => setForm({ ...form, phone: e.target.value })}
+                    onFocus={() => setFocused('phone')} onBlur={() => setFocused(null)}
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>Preferred Date</label>
+                  <input
+                    type="date" name="date"
+                    style={{ ...inputStyle('date'), colorScheme: 'dark' }} value={form.date}
+                    onChange={e => setForm({ ...form, date: e.target.value })}
+                    onFocus={() => setFocused('date')} onBlur={() => setFocused(null)}
+                  />
+                </div>
+              </div>
+
+              {/* Brief */}
+              <div>
+                <label style={labelStyle}>Project Brief</label>
+                <textarea
+                  name="brief" rows={5} required
+                  placeholder={service.placeholder}
+                  style={{ ...inputStyle('brief'), resize: 'none' }}
+                  value={form.brief}
+                  onChange={e => setForm({ ...form, brief: e.target.value })}
+                  onFocus={() => setFocused('brief')} onBlur={() => setFocused(null)}
+                />
+              </div>
+
+              {/* CTA buttons */}
+              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                {/* Email submit */}
+                <button
+                  type="submit"
+                  data-hover
+                  style={{ flex: 1, fontFamily: "'DM Sans'", fontSize: '.62rem', letterSpacing: '.4em', textTransform: 'uppercase', padding: '16px 20px', background: '#c9a96e', color: '#0a0a0a', border: 'none', cursor: 'none', fontWeight: 500, transition: 'background .35s, transform .25s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#dfc088'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#c9a96e'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)' }}
+                >
+                  Confirm Request
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h10M6 1l5 5-5 5" stroke="#0a0a0a" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </button>
+                {/* WhatsApp shortcut */}
+                <button
+                  type="button"
+                  data-hover
+                  onClick={handleWhatsApp}
+                  title="Send via WhatsApp instead"
+                  style={{ fontFamily: "'DM Sans'", fontSize: '.62rem', letterSpacing: '.38em', textTransform: 'uppercase', padding: '16px 20px', background: 'transparent', color: '#f0ede8', border: '1px solid rgba(255,255,255,.1)', cursor: 'none', transition: 'border-color .35s, color .35s, transform .25s', display: 'flex', alignItems: 'center', gap: 8 }}
+                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(201,169,110,.45)'; el.style.color = '#c9a96e'; el.style.transform = 'translateY(-1px)' }}
+                  onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(255,255,255,.1)'; el.style.color = '#f0ede8'; el.style.transform = 'translateY(0)' }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                  </svg>
+                  WhatsApp
+                </button>
+              </div>
+
+              <p style={{ fontFamily: "'DM Sans'", color: 'rgba(240,237,232,.2)', fontSize: '.58rem', textAlign: 'center', marginTop: 2 }}>
+                No payment required · Your details remain private
+              </p>
+            </form>
           </div>
 
-          {/* Social icons row */}
-          <div style={{ display: 'flex', gap: 10, marginTop: 'clamp(32px,4vw,48px)' }}>
-            {socials.map((s) => (
-              <a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-hover
-                title={s.label}
-                style={{
-                  width: 40,
-                  height: 40,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '1px solid rgba(255,255,255,.07)',
-                  color: 'rgba(240,237,232,.35)',
-                  transition: 'color .35s, border-color .35s, background .35s',
-                  textDecoration: 'none',
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.color = '#c9a96e'
-                  el.style.borderColor = 'rgba(201,169,110,.4)'
-                  el.style.background = 'rgba(201,169,110,.06)'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.color = 'rgba(240,237,232,.35)'
-                  el.style.borderColor = 'rgba(255,255,255,.07)'
-                  el.style.background = 'transparent'
-                }}
-              >
-                {s.icon}
-              </a>
-            ))}
-          </div>
         </div>
 
-        {/* ── Right column: form card ── */}
-        <div
-          style={{
-            background: 'rgba(255,255,255,.025)',
-            border: '1px solid rgba(255,255,255,.06)',
-            padding: 'clamp(28px,4vw,48px)',
-            backdropFilter: 'blur(12px)',
-            position: 'relative',
-          }}
-        >
-          {/* Status badge inside card */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
-            <span className="contact-pulse" style={{ width: 6, height: 6, borderRadius: '50%', background: '#c9a96e', display: 'block', flexShrink: 0 }} />
-            <span style={{ fontFamily: "'DM Sans'", color: 'rgba(201,169,110,.7)', fontSize: '.56rem', letterSpacing: '.38em', textTransform: 'uppercase' }}>
-              Open to opportunities · 2026
-            </span>
-          </div>
-
-          <form action="https://formsubmit.co/joshiabishek987@gmail.com" method="POST" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-            <input type="hidden" name="_subject" value="New message from portfolio!" />
-            <input type="hidden" name="_captcha" value="false" />
-
-            <div>
-              <label style={labelStyle}>Your Name</label>
-              <input
-                type="text"
-                name="name"
-                placeholder="Full name"
-                style={inputStyle('name')}
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                onFocus={() => setFocused('name')}
-                onBlur={() => setFocused(null)}
-                required
-              />
-            </div>
-
-            <div>
-              <label style={labelStyle}>Email Address</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="you@email.com"
-                style={inputStyle('email')}
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                onFocus={() => setFocused('email')}
-                onBlur={() => setFocused(null)}
-                required
-              />
-            </div>
-
-            <div>
-              <label style={labelStyle}>Message</label>
-              <textarea
-                name="message"
-                rows={5}
-                placeholder="Share your vision or project details..."
-                style={{ ...inputStyle('message'), resize: 'none' }}
-                value={form.message}
-                onChange={(e) => setForm({ ...form, message: e.target.value })}
-                onFocus={() => setFocused('message')}
-                onBlur={() => setFocused(null)}
-                required
-              />
-            </div>
-
-            {/* Buttons */}
-            <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
-              <button
-                type="submit"
-                data-hover
-                style={{
-                  flex: 1,
-                  fontFamily: "'DM Sans'",
-                  fontSize: '.64rem',
-                  letterSpacing: '.42em',
-                  textTransform: 'uppercase',
-                  padding: '17px 24px',
-                  background: '#c9a96e',
-                  color: '#0a0a0a',
-                  border: 'none',
-                  cursor: 'none',
-                  transition: 'background .4s ease, transform .3s ease',
-                  fontWeight: 500,
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.background = '#dfc088'
-                  el.style.transform = 'translateY(-1px)'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.background = '#c9a96e'
-                  el.style.transform = 'translateY(0)'
-                }}
-              >
-                Send Inquiry
-              </button>
-              <button
-                type="button"
-                onClick={handleWhatsApp}
-                data-hover
-                style={{
-                  fontFamily: "'DM Sans'",
-                  fontSize: '.64rem',
-                  letterSpacing: '.42em',
-                  textTransform: 'uppercase',
-                  padding: '17px 24px',
-                  background: 'transparent',
-                  color: '#f0ede8',
-                  border: '1px solid rgba(255,255,255,.1)',
-                  cursor: 'none',
-                  transition: 'border-color .4s ease, color .4s ease, transform .3s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = 'rgba(201,169,110,.5)'
-                  el.style.color = '#c9a96e'
-                  el.style.transform = 'translateY(-1px)'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = 'rgba(255,255,255,.1)'
-                  el.style.color = '#f0ede8'
-                  el.style.transform = 'translateY(0)'
-                }}
-              >
-                {/* WhatsApp icon */}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                </svg>
-                WhatsApp
-              </button>
-            </div>
-          </form>
+        {/* ── Social row below the card ── */}
+        <div style={{ display: 'flex', gap: 10, marginTop: 24, flexWrap: 'wrap' }}>
+          {[
+            { label: 'Instagram', href: 'https://www.instagram.com/abishek_joshi_/' },
+            { label: 'LinkedIn',  href: 'https://www.linkedin.com/in/abishekh-joshi-41135a2a0/' },
+            { label: 'Facebook',  href: 'https://www.facebook.com/abishek.joshi.79' },
+            { label: 'TikTok',    href: 'https://www.tiktok.com/@abishekjoshi59' },
+            { label: 'WhatsApp',  href: 'https://wa.me/9779815025634' },
+          ].map(s => (
+            <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" data-hover
+              style={{ fontFamily: "'DM Sans'", color: 'rgba(240,237,232,.25)', fontSize: '.58rem', letterSpacing: '.32em', textTransform: 'uppercase', textDecoration: 'none', padding: '8px 14px', border: '1px solid rgba(255,255,255,.06)', transition: 'color .3s, border-color .3s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#c9a96e'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(201,169,110,.3)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(240,237,232,.25)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,.06)' }}
+            >
+              {s.label}
+            </a>
+          ))}
         </div>
+
       </div>
     </section>
   )
@@ -1425,6 +1465,24 @@ function Footer() {
 // ─── Root ─────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  // ─── SEO: inject metadata + JSON-LD on mount ───────────────────────────
+  useSEO({
+    title: 'Abishekh Joshi — Photographer, Video Editor & Web Designer, Kathmandu',
+    description:
+      'Abishekh Joshi is a photographer, video editor, and web designer based in Kathmandu, Nepal. Specialising in portrait, concert, and landscape photography, cinematic video editing for music artists, and end-to-end web design and development.',
+    canonicalUrl: 'https://abishekhjoshi.com.np/',
+    robots: 'index, follow',
+    ogType: 'website',
+    ogImage: 'https://abishekhjoshi.com.np/og-image.jpg',
+    twitterCard: 'summary_large_image',
+    schemas: [
+      { _id: 'schema-person',    ...buildPersonSchema() },
+      { _id: 'schema-website',   ...buildWebSiteSchema() },
+      { _id: 'schema-webpage',   ...buildWebPageSchema() },
+      { _id: 'schema-portfolio', ...buildPortfolioSchema() },
+    ],
+  })
+
   const [modal, setModal] = useState<GalleryItem | null>(null)
   const [photoTab, setPhotoTab] = useState<typeof TABS[number]>('All')
 
