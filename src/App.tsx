@@ -707,21 +707,23 @@ function About() {
 
           {/* Sub-label */}
           <p style={{ fontFamily: "'DM Sans'", color: '#6b6b6b', fontSize: '.68rem', letterSpacing: '.38em', textTransform: 'uppercase', marginBottom: 28 }}>
-            UX/UI Designer &nbsp;·&nbsp; Photographer &nbsp;·&nbsp; Kathmandu
+            Photographer &nbsp;·&nbsp; Video Editor &nbsp;·&nbsp; Web Designer &nbsp;·&nbsp; Kathmandu
           </p>
 
-          {/* Bio paragraphs — compact, like the reference */}
+          {/* Bio paragraphs */}
           <div style={{ maxWidth: 460 }}>
             <p style={{ fontFamily: "'DM Sans'", color: 'rgba(11,11,11,.58)', fontSize: 'clamp(.84rem,1.1vw,.95rem)', lineHeight: 1.85, marginBottom: 18 }}>
               Hello, I'm Abishekh.<br />
-              I'm a UX/UI designer &amp; photographer based in Kathmandu, Nepal,
+              I'm a photographer, video editor, and web designer based in Kathmandu, Nepal —
               blending visual storytelling with functional design to create
-              experiences that feel personal and purposeful.
+              work that feels personal and purposeful.
             </p>
             <p style={{ fontFamily: "'DM Sans'", color: 'rgba(11,11,11,.38)', fontSize: 'clamp(.82rem,1vw,.92rem)', lineHeight: 1.85, marginBottom: 0 }}>
-              My work spans user interface design, brand identity, and photography —
-              with a technical foundation in Information Technology. Currently open
-              to internships, freelance projects, and meaningful collaborations.
+              My work spans portrait, concert, landscape and cultural photography,
+              cinematic video editing for music artists and brands, and end-to-end
+              web design and development — with a technical foundation in
+              Information Technology. Currently open to freelance projects,
+              commissions, and meaningful collaborations.
             </p>
           </div>
         </div>
