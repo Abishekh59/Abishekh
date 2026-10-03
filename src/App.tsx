@@ -909,6 +909,8 @@ function Contact() {
   const [form, setForm] = useState({ name: '', phone: '', date: '', brief: '' })
   const [focused, setFocused] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState(false)
 
   const service = SERVICES.find(s => s.id === serviceId)!
 
@@ -1125,12 +1127,34 @@ function Contact() {
               Tell me about your {service.id === 'other' ? 'idea' : 'project'}
             </p>
 
-            <form action="https://formsubmit.co/joshiabishek987@gmail.com" method="POST"
+            <form
               style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
-              onSubmit={() => setTimeout(() => setSent(true), 200)}
+              onSubmit={async (e) => {
+                e.preventDefault()
+                setSubmitting(true)
+                setSubmitError(false)
+                try {
+                  const data = new FormData(e.currentTarget)
+                  const res = await fetch('https://formsubmit.co/ajax/joshiabishek987@gmail.com', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json' },
+                    body: data,
+                  })
+                  if (res.ok) {
+                    setSent(true)
+                  } else {
+                    setSubmitError(true)
+                  }
+                } catch {
+                  setSubmitError(true)
+                } finally {
+                  setSubmitting(false)
+                }
+              }}
             >
               <input type="hidden" name="_subject" value={service.subjectLabel} />
               <input type="hidden" name="_captcha" value="false" />
+              <input type="hidden" name="_template" value="table" />
               <input type="hidden" name="service"  value={service.label} />
 
               {/* Name */}
@@ -1175,13 +1199,13 @@ function Contact() {
 
               {/* CTA */}
               <div style={{ display: 'flex', gap: 10, marginTop: 4, flexWrap: 'wrap' }}>
-                <button type="submit" data-hover
-                  style={{ flex: 1, minWidth: 160, fontFamily: "'DM Sans'", fontSize: '.62rem', letterSpacing: '.4em', textTransform: 'uppercase', padding: '16px 20px', background: INK, color: '#fff', border: 'none', cursor: 'none', fontWeight: 500, transition: 'background .3s, transform .22s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = GOLD; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = INK;  (e.currentTarget as HTMLElement).style.transform = 'translateY(0)' }}
+                <button type="submit" data-hover disabled={submitting}
+                  style={{ flex: 1, minWidth: 160, fontFamily: "'DM Sans'", fontSize: '.62rem', letterSpacing: '.4em', textTransform: 'uppercase', padding: '16px 20px', background: submitting ? '#6b6b6b' : INK, color: '#fff', border: 'none', cursor: submitting ? 'not-allowed' : 'none', fontWeight: 500, transition: 'background .3s, transform .22s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+                  onMouseEnter={e => { if (!submitting) (e.currentTarget as HTMLElement).style.background = GOLD }}
+                  onMouseLeave={e => { if (!submitting) (e.currentTarget as HTMLElement).style.background = INK }}
                 >
-                  Confirm Request
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h10M6 1l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  {submitting ? 'Sending…' : 'Confirm Request'}
+                  {!submitting && <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h10M6 1l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                 </button>
                 <button type="button" data-hover onClick={handleWhatsApp}
                   style={{ fontFamily: "'DM Sans'", fontSize: '.62rem', letterSpacing: '.38em', textTransform: 'uppercase', padding: '16px 20px', background: 'transparent', color: INK, border: `1px solid ${BORDER}`, cursor: 'none', transition: 'border-color .3s, color .3s, transform .22s', display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}
@@ -1194,6 +1218,12 @@ function Contact() {
                   WhatsApp
                 </button>
               </div>
+
+              {submitError && (
+                <p style={{ fontFamily: "'DM Sans'", color: '#c0392b', fontSize: '.75rem', textAlign: 'center', marginTop: 4 }}>
+                  Something went wrong. Please try WhatsApp or email directly.
+                </p>
+              )}
 
               <p style={{ fontFamily: "'DM Sans'", color: 'rgba(11,11,11,.25)', fontSize: '.56rem', textAlign: 'center', marginTop: 2 }}>
                 No payment required · Your details remain private
