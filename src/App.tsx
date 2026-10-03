@@ -906,7 +906,7 @@ type ServiceId = typeof SERVICES[number]['id']
 
 function Contact() {
   const [serviceId, setServiceId] = useState<ServiceId>('photography')
-  const [form, setForm] = useState({ name: '', phone: '', date: '', brief: '' })
+  const [form, setForm] = useState({ name: '', phone: '', email: '', date: '', brief: '' })
   const [focused, setFocused] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -963,32 +963,56 @@ function Contact() {
     window.open(`https://wa.me/9779815025634?text=${encodeURIComponent(lines)}`, '_blank')
   }
 
-  // ── Success state ────────────────────────────────────────────────────────
-  if (sent) {
-    return (
-      <section id="contact" style={{ background: BG, borderTop: `1px solid ${BORDER}`, minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center', padding: '40px 24px' }}>
-          <div style={{ width: 56, height: 56, border: `1px solid ${GOLD}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 28px' }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-          </div>
-          <h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: INK, fontSize: 'clamp(1.8rem,4vw,3rem)', lineHeight: 1, marginBottom: 14, fontStyle: 'italic' }}>Message sent.</h2>
-          <p style={{ fontFamily: "'DM Sans'", color: MUTED, fontSize: '.9rem', lineHeight: 1.7, maxWidth: 380, margin: '0 auto 32px' }}>
-            I'll confirm your enquiry personally — usually within a day. WhatsApp is fastest.
-          </p>
-          <button data-hover onClick={() => { setSent(false); setForm({ name: '', phone: '', date: '', brief: '' }) }}
-            style={{ fontFamily: "'DM Sans'", fontSize: '.6rem', letterSpacing: '.38em', textTransform: 'uppercase', padding: '13px 28px', background: 'transparent', color: GOLD, border: `1px solid ${GOLD}`, cursor: 'none', transition: 'background .3s, color .3s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = GOLD; (e.currentTarget as HTMLElement).style.color = '#fff' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = GOLD }}
-          >
-            Send another
-          </button>
+  // ── Success state — overlay popup ───────────────────────────────────────
+  const successPopup = sent && (
+    <div
+      style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(0,0,0,.55)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+      onClick={() => { setSent(false); setForm({ name: '', phone: '', email: '', date: '', brief: '' }) }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ background: '#fff', padding: 'clamp(32px,6vw,56px)', maxWidth: 420, width: '100%', textAlign: 'center', position: 'relative', boxShadow: '0 24px 80px rgba(0,0,0,.18)' }}
+      >
+        {/* Close button */}
+        <button
+          data-hover
+          onClick={() => { setSent(false); setForm({ name: '', phone: '', email: '', date: '', brief: '' }) }}
+          style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'none', color: 'rgba(11,11,11,.35)', fontSize: 22, lineHeight: 1, transition: 'color .3s' }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#111')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'rgba(11,11,11,.35)')}
+        >×</button>
+
+        {/* Gold tick */}
+        <div style={{ width: 52, height: 52, border: '1px solid #c9a96e', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
         </div>
-      </section>
-    )
-  }
+
+        <h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: '#111', fontSize: 'clamp(1.6rem,4vw,2.2rem)', lineHeight: 1.1, marginBottom: 12, fontStyle: 'italic' }}>
+          Message received!
+        </h2>
+        <p style={{ fontFamily: "'DM Sans'", color: 'rgba(11,11,11,.5)', fontSize: '.88rem', lineHeight: 1.75, marginBottom: 8 }}>
+          Thank you for reaching out. I'll get back to you personally — usually within 24 hours.
+        </p>
+        <p style={{ fontFamily: "'DM Sans'", color: 'rgba(11,11,11,.35)', fontSize: '.78rem', lineHeight: 1.6, marginBottom: 28 }}>
+          For a faster reply, send a WhatsApp message to <strong style={{ color: '#111' }}>+977 9815025634</strong>
+        </p>
+
+        <button
+          data-hover
+          onClick={() => { setSent(false); setForm({ name: '', phone: '', email: '', date: '', brief: '' }) }}
+          style={{ fontFamily: "'DM Sans'", fontSize: '.6rem', letterSpacing: '.38em', textTransform: 'uppercase', padding: '12px 28px', background: '#111', color: '#fff', border: 'none', cursor: 'none', transition: 'background .3s' }}
+          onMouseEnter={e => (e.currentTarget.style.background = '#c9a96e')}
+          onMouseLeave={e => (e.currentTarget.style.background = '#111')}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <section id="contact" style={{ background: BG, borderTop: `1px solid ${BORDER}`, padding: 'clamp(64px,8vw,120px) clamp(18px,4vw,64px)', position: 'relative', overflow: 'hidden' }}>
+      {successPopup}
 
       {/* Watermark */}
       <div style={{ position: 'absolute', top: '-4%', right: '-2%', fontFamily: "'DM Serif Display',Georgia,serif", fontSize: 'clamp(12rem,24vw,22rem)', color: 'rgba(0,0,0,.03)', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>05</div>
@@ -1164,6 +1188,16 @@ function Contact() {
                   style={inputStyle('name')} value={form.name}
                   onChange={e => setForm({ ...form, name: e.target.value })}
                   onFocus={() => setFocused('name')} onBlur={() => setFocused(null)}
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label style={labelStyle}>Email Address</label>
+                <input type="email" name="email" placeholder="you@email.com" required
+                  style={inputStyle('email')} value={form.email}
+                  onChange={e => setForm({ ...form, email: e.target.value })}
+                  onFocus={() => setFocused('email')} onBlur={() => setFocused(null)}
                 />
               </div>
 
